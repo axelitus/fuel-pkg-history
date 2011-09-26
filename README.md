@@ -1,6 +1,8 @@
 # Fuel History package
 
-The History package allows you to have a browsing history stack. The class uses the Fuel\Session class to store the browsing data.
+The History package allows you to have a browsing history stack.
+The class uses different drivers to store the history stack. The included drivers are: File (default), Database and Session 
+ The \Fuel\Session is used for storing driver data (that we can retrieve between requests) regardless of the driver used.
 
 ## About
 
