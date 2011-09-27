@@ -17,13 +17,18 @@ namespace History;
  *
  * @package     Fuel
  * @subpackage  History
- * TODO: We need a Garbage Collector to delete the files that are not needed anymore.
+ * TODO: We need a Garbage Collector to delete the files that are not needed
+ * anymore.
  */
 class History_Driver_File extends History_Driver
 {
 	protected $_filepath = '';
 	protected $_filename = '';
 
+	/**
+	 * Prevent direct instantiation. The parent's forge() method must be used to
+	 * create an isntance.
+	 */
 	protected function __construct($history_id, $config = array())
 	{
 		parent::__construct($history_id, $config);
@@ -40,7 +45,7 @@ class History_Driver_File extends History_Driver
 		$this->_filepath = realpath($this->_filepath);
 
 		// Generate a temp file and store it's name in the session under the history_id
-		// key
+		// key for further retrieval
 		if (!($this->_filename = \Session::get($this->_history_id . ".file", false)))
 		{
 			$tmpfile = tempnam($this->_filepath, 'history_');
@@ -51,7 +56,7 @@ class History_Driver_File extends History_Driver
 
 	/**
 	 * Gets the driver name (type)
-	 * 
+	 *
 	 * @return string
 	 */
 	public function get_name()
@@ -61,7 +66,7 @@ class History_Driver_File extends History_Driver
 
 	/**
 	 * Gets the File Path
-	 * 
+	 *
 	 * @return string
 	 */
 	public function get_filepath()
@@ -71,7 +76,7 @@ class History_Driver_File extends History_Driver
 
 	/**
 	 * Gets the File Name with extension included.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function get_filename()
@@ -81,7 +86,7 @@ class History_Driver_File extends History_Driver
 
 	/**
 	 * Gets the Full Path (File Path + File Name) with extension included.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function get_fullpath()
@@ -102,7 +107,7 @@ class History_Driver_File extends History_Driver
 			$payload = \File::read($this->get_fullpath(), true);
 			$entries = (($this->_config['secure']) ? unserialize(\Crypt::decode($payload)) : unserialize($payload));
 		}
-		
+
 		return $entries;
 	}
 
