@@ -26,11 +26,14 @@ class Controller_History extends \Controller
 		History::push_request($this->request);
 	}
 
-	public function after()
+	public function after($response)
 	{
 		// Automatically saves the History stack (using the loaded driver)
 		// This is done here to allow History stack changes in the controller methods
 		History::save();
+		
+		// Respect the base Controller's return value
+		return $response;
 	}
 
 }
