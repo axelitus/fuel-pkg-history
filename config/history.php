@@ -21,7 +21,9 @@ return array(
 		'name' => 'file',
 		// The path to the file to be used for archiving. (optional, default = sys_get_temp_dir())
 		// For Database Driver this should be set to the table name. Using Session this will be ignored.
-		'path' => ''
+		'path' => '',
+		// Whether to encode the entries (Using Fuel\Crypt class) or not (optiona, default = true)
+		'secure' => false
 	),
 	'entries' => array(
 		// How many entries should we collect? (optional, default = 15, use 0 for unlimited)

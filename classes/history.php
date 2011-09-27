@@ -49,17 +49,19 @@ class History
 	/**
 	 * @var array of global config defaults
 	 */
-	protected static $_defaults = array(
+	protected static $_config_defaults = array(
 		// default ID for history tag in Session (optional, default = 'history')
 		'history_id' => 'history',
 		// The driver to be used (optional, default File Driver config)
 		'driver' => array(
 			// The name of the driver to be used (optional, default = 'file')
-			// Options: file|database
+			// Options: file|database|session
 			'name' => 'file',
 			// The path to the file to be used for archiving. (optional, default = sys_get_temp_dir ())
 			// For Database Driver this should be set to the table name
-			'path' => ''
+			'path' => '',
+			// Whether to encode the entries (Using Fuel\Crypt class) or not (optiona, default = true)
+			'secure' => true
 		),
 		'entries' => array(
 			// How many entries should we collect? (optional, default = 15, use 0 for unlimited)
@@ -76,16 +78,21 @@ class History
 	public static function _init()
 	{
 		\Config::load('history', true);
-		static::$_config = \Arr::merge_replace(static::$_defaults, \Config::get('history'));
+		static::$_config = \Arr::merge_replace(static::$_config_defaults, \Config::get('history'));
 
-		// TODO: Verify drivers. If no allowed driver is set use File driver for default.
+		// If no other supported driver is loaded then set the driver to file
+		static::$_config['driver']['name'] = ((static::$_config['driver']['name'] == 'database' || static::$_config['driver']['name'] == 'session') ? static::$_config['driver']['name'] : 'file'); 
 
+		// Load the driver
+		$driver = 'History_Driver_' . ucwords(static::$_config['driver']['name']);
+		static::$_driver = $driver::forge(static::$_config['history_id'], static::$_config['driver']);
+		
 		// TODO: For file the path must exist, otherwise use sys_get_temp_dir() but log
-		// an error. For Database check if table exist otherwise throw an exception
+		// an error. For Database check if table exist otherwise throw an exception.
+		// This task is thrown at the drivers directly. I leave this todo to remember.
 
-		// Load previous entries
-		//static::$_entries = \Session::get(static::$_config['history_id'], array());
-		// TODO: use the driver to retrieve the stored history information
+		// Load previous entries using the driver
+		static::$_entries = static::$_driver->load();
 	}
 
 	/**
@@ -97,7 +104,7 @@ class History
 		static::$_entries[] = $entry;
 		static::$_last = static::$_current++;
 		
-		// Prune the array
+		// Prune the array if needed
 		static::prune();
 	}
 
@@ -172,8 +179,8 @@ class History
 	 */
 	public static function save()
 	{
-		//\Session::set(static::$_config['history_id'], static::$_entries);
-		// TODO: use the driver to store the history information.
+		// Use the driver to store the history information.
+		static::$_driver->save(static::$_entries);
 	}
 
 	// === End: Interface Countable ===
