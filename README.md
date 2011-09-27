@@ -22,11 +22,12 @@ The package installation is very easy. You can choose one of two methods describ
 
 Just download the source code located at [axelitus' FuelPHP History package at GitHub](https://github.com/axelitus/fuel-pkg-history) and place it in a folder named history inside the packages folder in FuelPHP.
 Alternatively you can use git to clone the repository directly (this will make your life easier when updating the package):
+
 ```
 git clone git@github.com:axelitus/fuel-pkg-history history
 ```
 
-### Oil
+### Using Oil
 
 This package follows standard installation rules, which can be found within the [FuelPHP Documentation for Packages] (http://fuelphp.com/docs/general/packages.html)
 First you need to add axelitus' GitHub location to the package configuration file (package.php) located in fuel/core/config/ folder (you are encourage to copy this file to your app/config folder and edit that file instead):
@@ -54,6 +55,7 @@ oil package install pkg-history
 The easiest way to start using this package is to extend the Controller_History class. This will allow the extended Controller to automatically generate the History stack and save it between requests.
 
 To extend the controller just extend the base class like:
+
 ```
 class MyNewController extends Controller_History
 ```
@@ -64,7 +66,9 @@ If you need to use those functions in your controller, check the code in the bas
 ### Configuration
 
 The configuration is done using the file history.php in the config directory (you are encourage to copy this file to your app/config folder and edit that file instead).
+
 Config example:
+
 ```
 return array(
 	'history_id' => 'history',
@@ -95,12 +99,15 @@ The driver to be used. It can be one of the following: file|database|session
 ##### path (type: string, default: '')
 
 Using file driver: The path to where the files will be saved. If the path does not exist or is not specified, the default sys temp path will be used.
+
 Using database driver: The table name to where the files will be saved. If the table does not exist, an Exception will be thrown.
+
 Using session driver: This will be ignored.
 
 ##### secure (type: bool, default: true)
 
 Using file and database driver: The stored data will be encoded using the \Crypt class.
+
 Using session driver: This will be ignored. The session automatically encodes data unless otherwise stated in the Session's config.
 
 #### entries (type: array)
@@ -114,7 +121,7 @@ This value limits the entries that the stack will record. This works in the FIFO
 ##### prevent_refresh (type: bool, default: true)
 
 When set to true this option prevents duplicate entries by refresh. What it essentially does is that it does not allow an exact follow-up entry.
-If detected the new entry will be discarded, thus not registering it completely.
+If a refresh is detected the new entry will be discarded, thus not registering it completely.
 
 ### Driver specifics
 
@@ -143,6 +150,7 @@ This is the main class which handles the History stack.
 ##### History::push(History_Entry $entry)
 
 Description: Pushes a History_Entry to the History stack
+
 ```
 History::push($entry);
 ```
@@ -150,6 +158,7 @@ History::push($entry);
 ##### History::push_request(\Fuel\Core\Request $request)
 
 Description: Pushes a History_Entry based on a \Fuel\Core\Request to the History stack
+
 ```
 // From a Controller method
 History::push_request($this->request);
@@ -157,8 +166,9 @@ History::push_request($this->request);
 
 ##### History::pop()
 
-Description: Pops the top-most (current) History_Entry from the History
+Description: Pops the top-most (current) History_Entry from the History.
 Note: this will shorten the entries by one element.
+
 ```
 $entry = History::pop();
 ```
@@ -166,6 +176,7 @@ $entry = History::pop();
 ##### History::get_entries()
 
 Description: Gets the entries as an array
+
 ```
 $entries = History::get_entries();
 foreach($entries as $entry)
@@ -177,6 +188,7 @@ foreach($entries as $entry)
 ##### History::count()
 
 Description: Gets the history entries count
+
 ```
 $count = History::count();
 if($count > 10)
@@ -188,6 +200,7 @@ if($count > 10)
 ##### History::current()
 
 Description: Gets the current History entry
+
 ```
 $entry = History::current();
 echo $entry->uri;
@@ -196,6 +209,7 @@ echo $entry->uri;
 ##### History::previous()
 
 Description: Gets the previous History entry
+
 ```
 $entry = History::previous();
 echo $entry->uri;
@@ -204,6 +218,7 @@ echo $entry->uri;
 ##### History::load()
 
 Description: Loads the stored entries to the History stack using the configured driver
+
 ```
 History::load();
 ```
@@ -211,6 +226,7 @@ History::load();
 ##### History::save()
 
 Description: Saves the History to a store using the configured driver
+
 ```
 History::save();
 ```
@@ -222,6 +238,7 @@ This class represents an entry in the History stack.
 ##### History_Entry::forge($data)
 
 Description: Forges a new History_Entry object. It can take an array of data, an \Uri object or an uri string
+
 ```
 $data = array(
 	'uri' => '/welcome/index',
@@ -233,11 +250,13 @@ $data = array(
 );
 $entry = History_Entry::forge($data);
 ```
+
 The only required data option is uri. (In fact, instead of an array one could use only the uri string. All other values are automatically created) 
 
 ##### History_Entry::from_request(\Fuel\Core\Request $request)
 
 Description: Forges a new History_Entry from a Fuel\Core\Request object
+
 ```
 // From a Controller method
 $entry = History_Entry::from_request($this->request);
@@ -246,6 +265,7 @@ $entry = History_Entry::from_request($this->request);
 ##### History_Entry->serialize()
 
 Description: Serializes the History_Entry object
+
 ```
 $entry = History_Entry::forge('/');
 $serialized = $entry->serialize();
@@ -254,6 +274,7 @@ $serialized = $entry->serialize();
 ##### History_Entry->unserialize($str)
 
 Description: Unserializes the entries' string to the History_Entry object
+
 ```
 $serialized_string = 'a:1:{i:0;C:21:"History\History_Entry":195:{a:3:{s:3:"uri";s:13:"welcome/index";s:8:"segments";a:2:{i:0;s:7:"welcome";i:1;s:5:"index";}s:8:"datetime";O:14:"Fuel\Core\Date":2:{s:12:" * timestamp";i:1317144358;s:11:" * timezone";s:3:"UTC";}}}}';
 $entry = History_Entry::forge('')->unserialize($serialized_string);
@@ -262,7 +283,9 @@ Note: the serialized string it's just a close-to-real example
 
 ##### History_Entry::equals($compare)
 
-Description: Compares this History_Entry instance with another and determines if they are equal. It can be compared to a string (uri), a \Fuel\Uri object or a History_entry object.
+Description: Compares this History_Entry instance with another and determines if they are equal.
+It can be compared to a string (uri), a \Fuel\Uri object or a History_entry object.
+
 ```
 $uri = new \Uri('/');
 $entry = History_Entry::forge($uri);
@@ -291,7 +314,9 @@ The first version has the basic functionality one would expect. New features wil
 ### Next features
 
 The features for the next version are the ones listed here. (If you have any suggestions feel free to send them using [GitHub](https://github.com/axelitus) or send an email to dev [at] axelitus [dot] mx)
+
 Features:
+
 * Configurable file prefixes for File driver (currently it takes the history_id as prefix)
 * Own method for random file name in File driver (currently tempnam() is used)
 * Do some more logging when suitable for purposes debugging
