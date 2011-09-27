@@ -62,7 +62,7 @@ class History_Entry implements \Serializable
 		{
 			$this->_data = \Arr::merge(static::$_data_defaults, $data);
 		}
-		(is_null($this->_data['datetime']) or !($this->_data['datetime'] instanceof \Fuel\Core\Date)) and $this->_data['datetime'] = \Date::factory();
+		(is_null($this->_data['datetime']) or !($this->_data['datetime'] instanceof \Fuel\Core\Date)) and $this->_data['datetime'] = \Date::forge();
 	}
 
 	/**
@@ -70,9 +70,35 @@ class History_Entry implements \Serializable
 	 *
 	 * @return History_Entry
 	 */
-	public static function forge(array $data = array())
+	public static function forge($data = '')
 	{
-		return new static($data);
+		$options = array();
+		
+		if(is_string($data))
+		{
+			$uri = new \Uri($data);
+			$options['uri'] = $uri->uri;
+			$options['segments'] = $uri->segments;
+		}
+		else if(is_object($data) && $data instanceof \Uri)
+		{
+			$options['uri'] = $data->uri;
+			$options['segments'] = $data->segments;
+		}
+		else if(is_array($data))
+		{
+			$options = $data;
+			if($options['uri'] != '' && empty($options['segments']))
+			{
+				$uri = new \Uri($options['uri']);
+				$options['segments'] = $uri->segments;
+			}
+		}
+		else {
+			// TODO: throw exception
+		}
+		
+		return new static($options);
 	}
 
 	/**
