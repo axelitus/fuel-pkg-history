@@ -38,12 +38,17 @@ class History
 	/**
 	 * @var int Contains the index for the current History_Entry
 	 */
-	public static $_current = -1;
+	protected static $_current = -1;
 
 	/**
-	 * @var int Contains the index for the last History_Entry
+	 * @var int Contains the index for the previous History_Entry
 	 */
-	public static $_last = -2;
+	protected static $_previous = -2;
+
+	/**
+	 * @var bool prevent double-initiaization because of the 'core namespace' alias
+	 */
+	protected static $_initialized = false;
 
 	// @formatter:off
 	/**
@@ -77,34 +82,40 @@ class History
 	 */
 	public static function _init()
 	{
-		\Config::load('history', true);
-		if (method_exists('\Arr', 'merge_replace'))
+		// See if the class has already been initialized
+		if (!static::$_initialized)
 		{
-			static::$_config = \Arr::merge_replace(static::$_config_defaults, \Config::get('history'));
+			\Config::load('history', true);
+			if (method_exists('\Arr', 'merge_replace'))
+			{
+				static::$_config = \Arr::merge_replace(static::$_config_defaults, \Config::get('history'));
+			}
+			else
+			{
+				static::$_config = \Arr::merge(static::$_config_defaults, \Config::get('history'));
+			}
+
+			// If no other supported driver is loaded then set the driver to file
+			static::$_config['driver']['name'] = ((static::$_config['driver']['name'] == 'database' || static::$_config['driver']['name'] == 'session') ? static::$_config['driver']['name'] : 'file');
+
+			// Load the driver
+			$driver = 'History_Driver_' . ucwords(static::$_config['driver']['name']);
+			static::$_driver = $driver::forge(static::$_config['history_id'], static::$_config['driver']);
+
+			// Load previous entries using the driver
+			static::load();
+
+			// Initialization completed
+			static::$_initialized = true;
 		}
-		else
-		{
-			static::$_config = \Arr::merge(static::$_config_defaults, \Config::get('history'));
-		}
-
-		// If no other supported driver is loaded then set the driver to file
-		static::$_config['driver']['name'] = ((static::$_config['driver']['name'] == 'database' || static::$_config['driver']['name'] == 'session') ? static::$_config['driver']['name'] : 'file');
-
-		// Load the driver
-		$driver = 'History_Driver_' . ucwords(static::$_config['driver']['name']);
-		static::$_driver = $driver::forge(static::$_config['history_id'], static::$_config['driver']);
-
-		// Load previous entries using the driver
-		static::load();
 	}
 
 	/**
-	 * Pushes a History_Entry
+	 * Pushes a History_Entry to the History stack
 	 */
 	public static function push(History_Entry $entry)
 	{
 		// Use the prevent flag when set to prevent refresh entries
-		var_dump(static::$_current);
 		if (static::$_config['entries']['prevent_refresh'] && static::$_current >= 0 && $entry->equals(static::current()))
 		{
 			return;
@@ -112,14 +123,14 @@ class History
 
 		// Push the new entry
 		static::$_entries[] = $entry;
-		static::$_last = static::$_current++;
+		static::$_previous = static::$_current++;
 
 		// Prune the array if needed
 		static::_prune();
 	}
 
 	/**
-	 * Pushes a History_Entry based on a \Fuel\Core\Request
+	 * Pushes a History_Entry based on a \Fuel\Core\Request to the History stack
 	 */
 	public static function push_request(\Fuel\Core\Request $request)
 	{
@@ -140,7 +151,7 @@ class History
 		{
 			$return = static::$_entries[static::$_current];
 			unset(static::$_entries[static::$_current]);
-			static::$_current = static::$_last--;
+			static::$_current = static::$_previous--;
 		}
 
 		return $return;
@@ -179,7 +190,7 @@ class History
 			static::$_current = -1;
 		}
 
-		static::$_last = static::$_current - 1;
+		static::$_previous = static::$_current - 1;
 	}
 
 	/**
@@ -203,7 +214,7 @@ class History
 	}
 
 	/**
-	 * Gets the current History_Entry
+	 * Gets the current History entry
 	 *
 	 * @return History_Entry
 	 */
@@ -213,18 +224,17 @@ class History
 	}
 
 	/**
-	 * Gets the last History_Entry
+	 * Gets the previous History entry
 	 *
 	 * @return History_Entry
 	 */
 	public static function previous()
 	{
-		return (static::$_last >= 0) ? static::$_entries[static::$_current] : null;
+		return (static::$_previous >= 0) ? static::$_entries[static::$_current] : null;
 	}
 
 	/**
-	 * Initializes the current and last pointers (used when the class is initialized
-	 * and the data is loaded from driver)
+	 * Loads the stored entries to the History stack using the configured driver
 	 *
 	 * @return bool true if correctly loaded | false if not loaded (Driver missing?)
 	 */
@@ -237,7 +247,7 @@ class History
 			// Load the driver. This will fill the entries array
 			static::$_entries = static::$_driver->load();
 
-			// Prune as needed. This will recalculate the pointers too
+			// Prune as needed. This will re-calculate the pointers too
 			static::_prune(true);
 
 			$return = true;
@@ -247,7 +257,7 @@ class History
 	}
 
 	/**
-	 * Saves the History to the session
+	 * Saves the History to a store using the configured driver
 	 *
 	 * @return bool true
 	 */
