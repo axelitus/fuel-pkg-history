@@ -67,7 +67,7 @@ class History
 			// How many entries should we collect? (optional, default = 15, use 0 for unlimited)
 			'limit' => 15,
 			// Do not allow duplicate entries by refresh (optional, default = true)
-			'filter_refresh' => true
+			'prevent_refresh' => true
 		)
 	);
 	// @formatter:on
@@ -81,31 +81,34 @@ class History
 		static::$_config = \Arr::merge_replace(static::$_config_defaults, \Config::get('history'));
 
 		// If no other supported driver is loaded then set the driver to file
-		static::$_config['driver']['name'] = ((static::$_config['driver']['name'] == 'database' || static::$_config['driver']['name'] == 'session') ? static::$_config['driver']['name'] : 'file'); 
+		static::$_config['driver']['name'] = ((static::$_config['driver']['name'] == 'database' || static::$_config['driver']['name'] == 'session') ? static::$_config['driver']['name'] : 'file');
 
 		// Load the driver
 		$driver = 'History_Driver_' . ucwords(static::$_config['driver']['name']);
 		static::$_driver = $driver::forge(static::$_config['history_id'], static::$_config['driver']);
-		
-		// TODO: For file the path must exist, otherwise use sys_get_temp_dir() but log
-		// an error. For Database check if table exist otherwise throw an exception.
-		// This task is thrown at the drivers directly. I leave this todo to remember.
 
 		// Load previous entries using the driver
-		static::$_entries = static::$_driver->load();
+		static::load();
 	}
 
 	/**
 	 * Pushes a History_Entry
 	 */
-	public static function push(History_Entry $entry = null)
+	public static function push(History_Entry $entry)
 	{
-		// TODO: use the prevent flag when set to prevent refresh entries
+		// Use the prevent flag when set to prevent refresh entries
+		var_dump(static::$_current);
+		if (static::$_config['entries']['prevent_refresh'] && static::$_current >= 0 && $entry->equals(static::current()))
+		{
+			return;
+		}
+
+		// Push the new entry
 		static::$_entries[] = $entry;
 		static::$_last = static::$_current++;
-		
+
 		// Prune the array if needed
-		static::prune();
+		static::_prune();
 	}
 
 	/**
@@ -119,11 +122,13 @@ class History
 	/**
 	 * Pops the top-most (current) History_Entry from the History
 	 * Note: this will shorten the entries by one element.
+	 *
 	 * @return null|History_Entry
 	 */
 	public static function pop()
 	{
 		$return = null;
+
 		if (static::$_current >= 0)
 		{
 			$return = static::$_entries[static::$_current];
@@ -133,17 +138,47 @@ class History
 
 		return $return;
 	}
-	
+
 	/**
 	 * Prunes the array if needed depending on the limit config value.
 	 */
-	private static function prune()
+	private static function _prune($force_pointers = false)
 	{
-		// TODO: use the limit config to "prune" the array in case it needs to be
+		$pruned = false;
+		if (($limit = static::$_config['entries']['limit']) > 0 && ($offset = count(static::$_entries) - $limit) > 0)
+		{
+			static::$_entries = array_slice(static::$_entries, $offset);
+			$pruned = true;
+		}
+
+		if ($pruned || $force_pointers)
+		{
+			// Set pointers to the correct values
+			static::_set_pointers();
+		}
+	}
+
+	/**
+	 * Recalculates and sets the pointers to their correct values
+	 */
+	private static function _set_pointers()
+	{
+		if (($count = count(static::$_entries)) > 0)
+		{
+			static::$_current = $count - 1;
+		}
+		else
+		{
+			static::$_current = -1;
+		}
+		
+		static::$_last = static::$_current - 1;
 	}
 
 	/**
 	 * Gets the entries as an array
+	 *
+	 * @return array of History_Entry objects
 	 */
 	public static function get_entries()
 	{
@@ -152,6 +187,8 @@ class History
 
 	/**
 	 * Gets the history entries count
+	 *
+	 * @return int count of history entries
 	 */
 	public static function count()
 	{
@@ -160,6 +197,8 @@ class History
 
 	/**
 	 * Gets the current History_Entry
+	 *
+	 * @return History_Entry
 	 */
 	public static function current()
 	{
@@ -168,6 +207,8 @@ class History
 
 	/**
 	 * Gets the last History_Entry
+	 *
+	 * @return History_Entry
 	 */
 	public static function previous()
 	{
@@ -175,14 +216,38 @@ class History
 	}
 
 	/**
+	 * Initializes the current and last pointers (used when the class is initialized
+	 * and the data is loaded from driver)
+	 *
+	 * @return bool true if correctly loaded | false if not loaded (Driver missing?)
+	 */
+	public static function load()
+	{
+		$return = false;
+
+		if (is_object(static::$_driver) && static::$_driver instanceof History_Driver)
+		{
+			// Load the driver. This will fill the entries array
+			static::$_entries = static::$_driver->load();
+
+			// Prune as needed. This will recalculate the pointers too
+			static::_prune(true);
+
+			$return = true;
+		}
+
+		return $return;
+	}
+
+	/**
 	 * Saves the History to the session
+	 *
+	 * @return bool true
 	 */
 	public static function save()
 	{
 		// Use the driver to store the history information.
-		static::$_driver->save(static::$_entries);
+		return static::$_driver->save(static::$_entries);
 	}
-
-	// === End: Interface Countable ===
 
 }
