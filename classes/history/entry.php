@@ -54,13 +54,20 @@ class History_Entry implements \Serializable
 	 */
 	private function __construct(array $data = array())
 	{
-		$this->_data = \Arr::merge_replace(static::$_data_defaults, $data);
+		if (method_exists('\Arr', 'merge_replace'))
+		{
+			$this->_data = \Arr::merge_replace(static::$_data_defaults, $data);
+		}
+		else
+		{
+			$this->_data = \Arr::merge(static::$_data_defaults, $data);
+		}
 		(is_null($this->_data['datetime']) or !($this->_data['datetime'] instanceof \Fuel\Core\Date)) and $this->_data['datetime'] = \Date::factory();
 	}
 
 	/**
 	 * Forges a new History_Entry object
-	 * 
+	 *
 	 * @return History_Entry
 	 */
 	public static function forge(array $data = array())
@@ -70,7 +77,7 @@ class History_Entry implements \Serializable
 
 	/**
 	 * Forges a new History_Entry from a Fuel\Core\Request object
-	 * 
+	 *
 	 * @return History_Entry
 	 */
 	public static function from_request(\Fuel\Core\Request $request)
@@ -97,7 +104,7 @@ class History_Entry implements \Serializable
 
 	/**
 	 * Gets the given object property
-	 * 
+	 *
 	 * @return mixed
 	 */
 	public function __get($key)
@@ -126,7 +133,7 @@ class History_Entry implements \Serializable
 
 	/**
 	 * Serializes the History_Entry object
-	 * 
+	 *
 	 * @return string
 	 */
 	public function serialize()
@@ -136,13 +143,13 @@ class History_Entry implements \Serializable
 
 	/**
 	 * Unserializes the entries' string to the History_Entry object
-	 * 
+	 *
 	 * @return History_Entry
 	 */
 	public function unserialize($str)
 	{
 		$this->_data = unserialize($str);
-		
+
 		return $this;
 	}
 
@@ -150,7 +157,7 @@ class History_Entry implements \Serializable
 	 * Compares this History_Entry instance with another and determines if they are
 	 * equal. It can be compared to a string (uri), a \Fuel\Uri object or a
 	 * History_entry object.
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function equals($compare)

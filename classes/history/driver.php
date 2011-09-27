@@ -50,22 +50,29 @@ abstract class History_Driver
 	protected function __construct($history_id, array $config = array())
 	{
 		$this->_history_id = $history_id;
-		$this->_config = \Arr::merge_replace(static::$_config_defaults, $config);
+		if (method_exists('\Arr', 'merge_replace'))
+		{
+			$this->_config = \Arr::merge_replace(static::$_config_defaults, $config);
+		}
+		else
+		{
+			$this->_config = \Arr::merge(static::$_config_defaults, $config);
+		}
 	}
 
 	/**
 	 * Forges a new History_Driver instance
-	 * 
+	 *
 	 * @return History_Driver
 	 */
 	public static function forge($history_id, array $config = array())
 	{
 		return new static($history_id, $config);
 	}
-	
+
 	/**
 	 * Gets the driver name (type)
-	 * 
+	 *
 	 * @return string
 	 */
 	abstract public function get_name();

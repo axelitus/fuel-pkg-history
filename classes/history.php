@@ -78,7 +78,14 @@ class History
 	public static function _init()
 	{
 		\Config::load('history', true);
-		static::$_config = \Arr::merge_replace(static::$_config_defaults, \Config::get('history'));
+		if (method_exists('\Arr', 'merge_replace'))
+		{
+			static::$_config = \Arr::merge_replace(static::$_config_defaults, \Config::get('history'));
+		}
+		else
+		{
+			static::$_config = \Arr::merge(static::$_config_defaults, \Config::get('history'));
+		}
 
 		// If no other supported driver is loaded then set the driver to file
 		static::$_config['driver']['name'] = ((static::$_config['driver']['name'] == 'database' || static::$_config['driver']['name'] == 'session') ? static::$_config['driver']['name'] : 'file');
@@ -171,7 +178,7 @@ class History
 		{
 			static::$_current = -1;
 		}
-		
+
 		static::$_last = static::$_current - 1;
 	}
 
