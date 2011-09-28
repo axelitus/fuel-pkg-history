@@ -58,10 +58,12 @@ To extend the controller just extend the base class like:
 
 ```
 class MyNewController extends Controller_History
+{
+}
 ```
 
-The Controller_History class uses the before() and after() controller functions, so if you overload this in your derived controller it won't work.
-If you need to use those functions in your controller, check the code in the base class and copy it as needed.
+The Controller_History class uses the before() and after() controller functions, so if you overload this in your derived controller it won't work unless you use the parent::before() and parent::after() statements inside your functions.
+Check the code in the base class and modify it as needed if you don't want to use the parent::before() and parent::after() calls.
 
 ### Configuration
 
@@ -317,11 +319,11 @@ The features for the next version are the ones listed here. (If you have any sug
 
 Features:
 
-* Configurable file prefixes for File driver (currently it takes the history_id as prefix)
-* Own method for random file name in File driver (currently tempnam() is used)
+* [DONE] Configurable file prefixes for File driver (currently it takes the history_id as prefix)
+* [DONE] Own method for random file name in File driver (currently tempnam() is used)
 * Do some more logging when suitable for purposes debugging
 * Trigger Fuel\Core\Events when suitable
-* Garbage Collector for the File driver
+* [DONE] Garbage Collector for the File driver
 * Add the Session driver
 * Add the Database driver draft
 * Create and throw History Exceptions where suitable
