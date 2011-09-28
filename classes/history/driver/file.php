@@ -102,10 +102,21 @@ class History_Driver_File extends History_Driver
 	public function load()
 	{
 		$entries = array();
+
 		if (file_exists($this->get_fullpath()))
 		{
 			$payload = \File::read($this->get_fullpath(), true);
-			$entries = (($this->_config['secure']) ? unserialize(\Crypt::decode($payload)) : unserialize($payload));
+			if ($payload != '')
+			{
+				try
+				{
+					$entries = (($this->_config['secure']) ? unserialize(\Crypt::decode($payload)) : unserialize($payload));
+				}
+				catch(Exception $e)
+				{
+					\Log::error($e->getMessage());
+				}
+			}
 		}
 
 		return $entries;
