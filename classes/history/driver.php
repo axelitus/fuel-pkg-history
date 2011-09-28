@@ -29,6 +29,11 @@ abstract class History_Driver
 	 * @var array Contains the driver configuration
 	 */
 	protected $_config = array();
+	
+	/**
+	 * @var History_Driver_GC Garbage Collector specific for driver if needed 
+	 */
+	protected $_gc = null;
 
 	// @formatter:off
 	/**
@@ -38,8 +43,27 @@ abstract class History_Driver
 	 * values that should be present, unless your driver doesn't need them.
 	 */
 	protected static $_config_defaults = array(
-		'path' => '',
-		'secure' => true
+		'name' => 'file',
+		'secure' => true,
+		'file' => array(
+			'path' => '',
+			'prefix' => 'his_',
+			'extension' => 'tmp',
+			
+		),
+		'database' => array(
+			'table' => 'history',
+			'gc' => array(
+				'threshold' => 900,
+				'probability' => 5
+			)
+		),
+		'session' => array(
+		),
+		'gc' => array(
+			'threshold' => 900,
+			'probability' => 5
+		)
 	);
 	// @formatter:on
 
@@ -58,6 +82,17 @@ abstract class History_Driver
 		{
 			$this->_config = \Arr::merge(static::$_config_defaults, $config);
 		}
+	}
+	
+	/**
+	 * Loads the GC if it exists
+	 */
+	protected function _load_gc(array $config = array())
+	{
+		// If exists then load the Garbage Collector for the driver and start it
+		$gc = 'History_Driver_GC_' . ucwords($this->_config['name']);
+		class_exists($gc) and $this->_gc = $gc::forge($this, $config);
+		$this->_gc->start();
 	}
 
 	/**

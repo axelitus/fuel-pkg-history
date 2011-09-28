@@ -22,8 +22,30 @@ namespace History;
  */
 class History_Driver_File extends History_Driver
 {
-	protected $_filepath = '';
-	protected $_filename = '';
+	/**
+	 * @var int Contains the lenght of the hash value to be used  
+	 */
+	const HASH_LENGTH = 8;
+	
+	/**
+	 * @var string Contains the path to the stored files
+	 */
+	protected $_path = '';
+
+	/**
+	 * @var string Contains the file prefix
+	 */
+	protected $_prefix = '';
+	
+	/**
+	 * @var string Contains the extension of the stored files
+	 */
+	protected $_extension = '';
+	
+	/**
+	 * @var string Contains the hash of stored file (it's just a random id)
+	 */
+	protected $_hash = '';
 
 	/**
 	 * Prevent direct instantiation. The parent's forge() method must be used to
@@ -32,27 +54,52 @@ class History_Driver_File extends History_Driver
 	protected function __construct($history_id, $config = array())
 	{
 		parent::__construct($history_id, $config);
+		$driver = $this->get_name();
 
 		// Verify that the given path exists, if not set the path to sys_get_temp_dir()
-		$this->_filepath = $this->_config['path'];
-		if (!is_dir($this->_filepath))
+		$this->_path = $this->_config[$driver]['path'];
+		if (!is_dir($this->_path))
 		{
 			// Log only if a path was provided
-			if ($this->_filepath != '')
+			if ($this->_path != '')
+			{
 				\Log::warning(get_called_class() . "::__construct() - The given path ('{$this->_config['path']}') does not exist. The default temp dir ('" . sys_get_temp_dir() . "') will be used instead.");
-			$this->_filepath = sys_get_temp_dir();
+			}
+			$this->_path = sys_get_temp_dir();
 		}
-		$this->_filepath = realpath($this->_filepath);
+		
+		// Get the real path and trim any trailing slashes
+		$this->_path = rtrim(realpath($this->_path), '/\\');
 
-		// Generate a temp file and store it's name in the session under the history_id
-		// key for further retrieval
-		if (!($this->_filename = \Session::get($this->_history_id . ".file", false)))
+		// Get the prefix
+		$this->_prefix = $this->_config[$driver]['prefix'];
+		
+		// Get the extension
+		$this->_extension = $this->_config[$driver]['extension'];
+
+		if(!($this->_hash = \Session::get($this->_history_id . ".file", false)))
 		{
-			$tmpfile = tempnam($this->_filepath, 'history_');
-			$this->_filename = trim(str_replace($this->_filepath, '', $tmpfile), '/\\');
-			\Session::set($this->_history_id . ".file", $this->_filename);
+			do{
+				$this->_hash = static::_gen_hash();
+			}while(file_exists($this->get_fullpath()));
+			\File::create($this->_path, $this->get_filename());
+			\Session::set($this->_history_id . ".file", $this->_hash);
 		}
+
+		// For this driver we'll try to load the GC
+		$this->_load_gc($config['gc']);
 	}
+
+	/**
+	 * Generates a random hash
+	 */
+	protected static function _gen_hash()
+	{
+		$rand = mt_rand();
+		$hash = substr(md5($rand), 0, static::HASH_LENGTH);
+		
+		return $hash;
+	} 
 
 	/**
 	 * Gets the driver name (type)
@@ -69,29 +116,59 @@ class History_Driver_File extends History_Driver
 	 *
 	 * @return string
 	 */
-	public function get_filepath()
+	public function get_path()
 	{
-		return $this->_filepath;
+		return $this->_path;
 	}
 
 	/**
-	 * Gets the File Name with extension included.
+	 * Gets the File Prefix
+	 *
+	 * @return string
+	 */
+	public function get_prefix()
+	{
+		return $this->_prefix;
+	}
+	
+	/**
+	 * Gets the File Extension
+	 *
+	 * @return string
+	 */
+	public function get_extension()
+	{
+		return $this->_extension;
+	}
+	
+	/**
+	 * Gets the File Hash
+	 *
+	 * @return string
+	 */
+	public function get_hash()
+	{
+		return $this->_hash;
+	}
+	
+	/**
+	 * Gets the File Name (File Prefix + File Hash + File Extension)
 	 *
 	 * @return string
 	 */
 	public function get_filename()
 	{
-		return $this->_filename;
+		return $this->_prefix . $this->_hash . $this->_extension;
 	}
 
 	/**
-	 * Gets the Full Path (File Path + File Name) with extension included.
+	 * Gets the Full Path (File Path + DS + File Prefix + File Hash + File Extension)
 	 *
 	 * @return string
 	 */
 	public function get_fullpath()
 	{
-		return $this->_filepath . DS . $this->_filename;
+		return $this->_path . DS . $this->get_filename();
 	}
 
 	/**
@@ -130,7 +207,7 @@ class History_Driver_File extends History_Driver
 	public function save(array $entries)
 	{
 		$payload = (($this->_config['secure']) ? \Crypt::encode(serialize($entries)) : serialize($entries));
-		return \File::update($this->_filepath, $this->_filename, $payload);
+		return \File::update($this->_path, $this->get_filename(), $payload);
 	}
 
 }

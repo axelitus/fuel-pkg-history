@@ -16,14 +16,33 @@ return array(
 	'history_id' => 'history',
 	// The driver to be used (optional, default File Driver config)
 	'driver' => array(
-		// The name of the driver to be used (optional, default = 'file')
-		// Options: file|database|session
+		// The name of the driver to be used (optional, default = 'file'). Options: file|database|session
 		'name' => 'file',
-		// The path to the file to be used for archiving. (optional, default = sys_get_temp_dir())
-		// For Database Driver this should be set to the table name. Using Session this will be ignored.
-		'path' => '',
-		// Whether to encode the entries (Using Fuel\Crypt class) or not (optiona, default = true)
-		'secure' => false
+		// Whether to encode the entries (Using Fuel\Crypt class) or not (optional, default = true)
+		'secure' => false,
+		// Contains the specific config for the driver (other drivers will ignore it). This can be ommited when using other drivers
+		'file' => array(
+			// The path to the file to be used for archiving. (optional, default = sys_get_temp_dir())
+			'path' => '',
+			// The prefix used for the filenames
+			'prefix' => 'his_',
+			// The file extension to be used (you must include the dot)
+			'extension' => '.tmp',
+			
+		),
+		'database' => array(
+			// The table name to be used for storing the stack
+			'table' => 'history',
+		),
+		'session' => array(
+		),
+		// Garbage Collector options for driver
+		'gc' => array(
+			// Seconds that will last the files unmodified before the garbage collector deletes them (optional, default = 900 [15 minutes])
+			'threshold' => 900,
+			// probability % (between 0 and 100) for garbage collection
+			'probability' => 5
+		)
 	),
 	'entries' => array(
 		// How many entries should we collect? (optional, default = 15, use 0 for unlimited)

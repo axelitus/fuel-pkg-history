@@ -32,19 +32,6 @@ class History_Entry implements \Serializable
 	protected static $_data_defaults = array(
 		'uri' => '',
 		'segments' => array(),
-		/* TODO: Define if this is really needed. I don't think so
-		 'route'		=> array(
-		 'segments'		=> array(),
-		 'named_params'	=> array(),
-		 'method_params'	=> array(),
-		 'path'			=> '',
-		 'module'		=> '',
-		 'directory'		=> '',
-		 'controller'	=> '',
-		 'action'		=> '',
-		 'translation'	=> ''
-		 ),
-		 * */
 		'datetime' => null
 	);
 	// @formatter:on
@@ -111,17 +98,6 @@ class History_Entry implements \Serializable
 		$data = array();
 		$data['uri'] = $request->uri->get();
 		$data['segments'] = $request->uri->get_segments();
-		/* TODO: Define if this is really needed. I don't think so
-		 $data['route']['segments'] = $request->route->segments;
-		 $data['route']['named_params'] = $request->route->named_params;
-		 $data['route']['method_params'] = $request->route->method_params;
-		 $data['route']['path'] = $request->route->path;
-		 $data['route']['module'] = $request->route->module;
-		 $data['route']['directory'] = $request->route->directory;
-		 $data['route']['controller'] = $request->route->controller;
-		 $data['route']['action'] = $request->route->action;
-		 $data['route']['translation'] = $request->route->translation;
-		 */
 
 		$return = static::forge($data);
 
@@ -135,10 +111,6 @@ class History_Entry implements \Serializable
 	 */
 	public function __get($key)
 	{
-		/* TODO: As the object currently does not hold multi-level data we don't need
-		 * this
-		 $arr_key = str_replace('_', '.', $key);
-		 */
 		if (($value = \Arr::get($this->_data, $key, null)) === null)
 		{
 			throw new \Fuel_Exception("The property '{$key}' does not exist.");

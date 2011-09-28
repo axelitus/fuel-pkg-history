@@ -20,5 +20,7 @@ Autoloader::add_classes(array(
 	'History\\History_Driver_File'		=> __DIR__.'/classes/history/driver/file.php',
 	'History\\History_Driver_Database'	=> __DIR__.'/classes/history/driver/database.php',
 	'History\\History_Driver_Session'	=> __DIR__.'/classes/history/driver/session.php',
+	'History\\History_Driver_GC'		=> __DIR__.'/classes/history/driver/gc.php',
+	'History\\History_Driver_GC_File'	=> __DIR__.'/classes/history/driver/gc/file.php',
 	'History\\Controller_History'		=> __DIR__.'/classes/controller/history.php',
 ));

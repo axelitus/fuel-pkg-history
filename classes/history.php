@@ -55,23 +55,28 @@ class History
 	 * @var array of global config defaults
 	 */
 	protected static $_config_defaults = array(
-		// default ID for history tag in Session (optional, default = 'history')
 		'history_id' => 'history',
-		// The driver to be used (optional, default File Driver config)
 		'driver' => array(
-			// The name of the driver to be used (optional, default = 'file')
-			// Options: file|database|session
 			'name' => 'file',
-			// The path to the file to be used for archiving. (optional, default = sys_get_temp_dir ())
-			// For Database Driver this should be set to the table name
-			'path' => '',
-			// Whether to encode the entries (Using Fuel\Crypt class) or not (optiona, default = true)
-			'secure' => true
+			'secure' => false,
+			'file' => array(
+				'path' => '',
+				'prefix' => 'his_',
+				'extension' => '.tmp',
+				
+			),
+			'database' => array(
+				'table' => 'history',
+			),
+			'session' => array(
+			),
+			'gc' => array(
+				'threshold' => 900,
+				'probability' => 5
+			)
 		),
 		'entries' => array(
-			// How many entries should we collect? (optional, default = 15, use 0 for unlimited)
 			'limit' => 15,
-			// Do not allow duplicate entries by refresh (optional, default = true)
 			'prevent_refresh' => true
 		)
 	);
