@@ -76,8 +76,16 @@ return array(
 	'history_id' => 'history',
 	'driver' => array(
 		'name' => 'file',
-		'path' => '',
-		'secure' => false
+		'secure' => true,
+		'file' => array(
+			'path' => '',
+			'prefix' => 'his_',
+			'extension' => '.tmp',
+		),
+		'gc' => array(
+			'threshold' => 900,
+			'probability' => 5
+		)
 	),
 	'entries' => array(
 		'limit' => 15,
