@@ -21,6 +21,11 @@ namespace History;
 abstract class History_Driver
 {
 	/**
+	 * @var int Contains the History_Driver hash length
+	 */
+	const HASH_LENGTH = 4;
+	
+	/**
 	 * @var string Contains the History's class history_id (the key in Session)
 	 */
 	protected $_history_id = 'history';
@@ -103,6 +108,20 @@ abstract class History_Driver
 	public static function forge($history_id, array $config = array())
 	{
 		return new static($history_id, $config);
+	}
+	
+	/**
+	 * Generates a random hash
+	 */
+	protected static function _gen_hash()
+	{
+		// Some random magic!
+		$rand = mt_rand();
+		
+		// The max number of chars is 40 as that is the length of a sha1
+		$hash = substr(md5($rand), 0, min(static::HASH_LENGTH, 40));
+		
+		return $hash;
 	}
 
 	/**

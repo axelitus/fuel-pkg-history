@@ -49,7 +49,7 @@ class History_Driver_File extends History_Driver
 
 	/**
 	 * Prevent direct instantiation. The parent's forge() method must be used to
-	 * create an isntance.
+	 * create an instance.
 	 */
 	protected function __construct($history_id, $config = array())
 	{
@@ -89,17 +89,6 @@ class History_Driver_File extends History_Driver
 		// For this driver we'll try to load the GC
 		$this->_load_gc($config['gc']);
 	}
-
-	/**
-	 * Generates a random hash
-	 */
-	protected static function _gen_hash()
-	{
-		$rand = mt_rand();
-		$hash = substr(md5($rand), 0, static::HASH_LENGTH);
-		
-		return $hash;
-	} 
 
 	/**
 	 * Gets the driver name (type)
@@ -193,6 +182,7 @@ class History_Driver_File extends History_Driver
 				{
 					\Log::error($e->getMessage());
 				}
+				$entries = (is_array($entries))? $entries : array();
 			}
 		}
 
