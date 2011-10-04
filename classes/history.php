@@ -193,7 +193,7 @@ class History
 	
 				return;
 			}
-	
+			
 			// Push the new entry
 			static::$_entries[] = $entry;
 			static::$_previous = static::$_current++;
@@ -273,12 +273,12 @@ class History
 				
 				$pruned = true;
 			}
-	
-			if ($pruned || $force_pointers)
-			{
-				// Set pointers to the correct values
-				static::_set_pointers();
-			}
+		}
+		
+		if ($pruned || $force_pointers)
+		{
+			// Set pointers to the correct values
+			static::_set_pointers();
 		}
 	}
 
@@ -296,7 +296,6 @@ class History
 		{
 			static::$_current = -1;
 		}
-
 		static::$_previous = static::$_current - 1;
 
 		// Log Info
