@@ -22,7 +22,7 @@ return array(
 		'secure' => true,
 		// The length of the hash to be used to identify the stack
 		'hash_length' => 8,
-		// Contains the specific config for the driver (other drivers will ignore it). This can be ommited when using other drivers
+		// Contains the specific config for the file driver (other drivers will ignore it). This can be ommited when using other drivers
 		'file' => array(
 			// The path to the file to be used for archiving. (optional, default = sys_get_temp_dir())
 			'path' => '',
@@ -31,12 +31,14 @@ return array(
 			// The file extension to be used (you must include the dot)
 			'extension' => '.tmp'
 		),
+		// Contains the specific config for the database driver (other drivers will ignore it). This can be ommited when using other drivers
 		'database' => array(
 			// The table name to be used for storing the stack
 			'table' => 'history',
 			// Determines if tabel should be created if it does not exist
 			'auto_create' => true
 		),
+		// Contains the specific config for the session driver (other drivers will ignore it). This can be ommited when using other drivers
 		'session' => array(
 		),
 		// Garbage Collector options for driver
@@ -49,6 +51,7 @@ return array(
 			'probability' => 5
 		)
 	),
+	// Contains the options for the entries
 	'entries' => array(
 		// How many entries should we collect? (optional, default = 15, use 0 for unlimited)
 		'limit' => 15,

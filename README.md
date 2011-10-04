@@ -283,6 +283,46 @@ Description: Saves the History to a store using the configured driver
 History::save();
 ```
 
+##### Events
+
+The History class triggers the following events:
+
+###### EVENT_ENTRY_BEFORE_PUSH
+
+This event fires up right before an entry is pushed into the stack. The data that is sent to the callback is the History_Entry that will be pushed into the stack. If you need to cancel the push you should return true (cancel = true) from the callback.
+
+###### EVENT_ENTRY_PUSHED
+
+This event fires up right after an entry is pushed to the stack. The data that is sent to the callback is the History_Entry that has been pushed into the stack.
+
+###### EVENT_ENTRY_BEFORE_POP
+
+This event fires up right before an entry is popped from the stack. The data that is sent to the callback is the 'current' History_Entry (that's the one that will be popped from the stack). If you need to cancel the pop you should return true (cancel = true) from the callback.
+
+###### EVENT_ENTRY_POPPED
+
+This event fires up right after an entry is popped from the stack. The data that is sent to the callback is the History_Entry that has been popped from the stack.
+
+###### EVENT_ENTRIES_LOADED
+
+This event fires up right after the entries were loaded using the specified driver. No data is sent to the callback.
+
+###### EVENT_ENTRIES_SAVED
+
+This event fires up right after the entries were saved using the specified driver. No data is sent to the callback.
+
+###### EVENT_ENTRIES_BEFORE_PRUNE
+
+This event fires up right before the entries stack is pruned. The data that is sent to the callback is an array containig the 'limit' of entries and the 'offset' from where it will be pruned. If you need to cancel the prune you should return true (cancel = true) from the callback.
+
+###### EVENT_ENTRIES_PRUNED
+
+This event fires up right after the entries stack was pruned. No data is sent to the callback.
+
+###### EVENT_POINTERS_RECALCULATED
+
+This event fires up right after the pointers were recalculated. No data is sent to the callback.
+
 #### History_Entry class
 
 This class represents an entry in the History stack.
@@ -363,10 +403,21 @@ if($entry->equals($uri->uri))
 
 The first version has the basic functionality one would expect. New features will be evaluated and added as soon as possible.
 
-### Features for 1.0 Release
+### Features for next Release 1.1
 
-The features for the next version are the ones listed here. (If you have any suggestions feel free to send them using [GitHub](https://github.com/axelitus) or send an email to dev [at] axelitus [dot] mx)
+The features for the next version are the ones listed above. (If you have any suggestions feel free to send them using [GitHub](https://github.com/axelitus) or send an email to dev [at] axelitus [dot] mx)
 
 Features:
 
-* Trigger Fuel\Core\Events when suitable
+* Register the User Agent used for the request
+* Register the HTTP Referer for the request
+
+## Special Thanks
+
+Firstly I would like to thank the [Fuel Development Team] (http://fuelphp.com/about) for their magnificent framework and spent time for making our lives easier. Great work, keep it up!
+
+Special thanks for he ones that helped by commenting, discussing, suggesting, testing, brainstorming (if I missed someone please let me know, if you don't want to appear in this list also let me know):
+
+* [ShonM] (https://github.com/ShonM)
+* [rclanan] (https://github.com/rclanan)
+* [canton7] (https://github.com/canton7)

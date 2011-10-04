@@ -25,6 +25,51 @@ class History_Exception extends \Fuel_Exception {}
 class History
 {
 	/**
+	 * @var string Contains the id for the Event ENTRY_BEFORE_PUSH
+	 */
+	const EVENT_ENTRY_BEFORE_PUSH = 'history_entry_before_push';
+	
+	/**
+	 * @var string Contains the id for the Event ENTRY_PUSHED
+	 */
+	const EVENT_ENTRY_PUSHED = 'history_entry_pushed';
+	
+	/**
+	 * @var string Contains the id for the Event ENTRY_BEFORE_POP
+	 */
+	const EVENT_ENTRY_BEFORE_POP = 'history_entry_before_pop';
+	
+	/**
+	 * @var string Contains the id for the Event ENTRY_POPPED
+	 */
+	const EVENT_ENTRY_POPPED = 'history_entry_popped';
+	
+	/**
+	 * @var string Contains the id for the Event ENTRIES_LOADED
+	 */
+	const EVENT_ENTRIES_LOADED = 'history_entries_loaded';
+	
+	/**
+	 * @var string Contains the id for the Event ENTRIES_SAVED
+	 */
+	const EVENT_ENTRIES_SAVED = 'history_entries_saved';
+	
+	/**
+	 * @var string Contains the id for the Event ENTRIES_PRUNED
+	 */
+	const EVENT_ENTRIES_BEFORE_PRUNE = 'history_entries_before_prune';
+	
+	/**
+	 * @var string Contains the id for the Event ENTRIES_PRUNED
+	 */
+	const EVENT_ENTRIES_PRUNED = 'history_entries_pruned';
+	
+	/**
+	 * @var string Contains the id for the Event POINTERS_RECALCULATED
+	 */
+	const EVENT_POINTERS_RECALCULATED = 'history_pointers_recalculated';
+	
+	/**
 	 * @var array Contains the browser history for current browser session
 	 */
 	protected static $_entries = array();
@@ -137,21 +182,28 @@ class History
 	 */
 	public static function push(History_Entry $entry)
 	{
-		// Use the prevent flag when set to prevent refresh entries
-		if (static::$_config['entries']['prevent_refresh'] && static::$_current >= 0 && $entry->equals(static::current()))
+		// The EVENT_ENTRY_BEFORE_PUSH callback should return true if it needs to cancel the push
+		if(static::_trigger_event(static::EVENT_ENTRY_BEFORE_PUSH, $entry, 'bool') !== true)
 		{
-			// Log Info
-			\Log::info(get_called_class() . "::push() - Refresh entry detected! The options are set to ommit those entries so it was not recorded.");
-
-			return;
+			// Use the prevent flag when set to prevent refresh entries
+			if (static::$_config['entries']['prevent_refresh'] && static::$_current >= 0 && $entry->equals(static::current()))
+			{
+				// Log Info
+				\Log::info(get_called_class() . "::push() - Refresh entry detected! The options are set to ommit those entries so it was not recorded.");
+	
+				return;
+			}
+	
+			// Push the new entry
+			static::$_entries[] = $entry;
+			static::$_previous = static::$_current++;
+			
+			// Trigger event
+			static::_trigger_event(static::EVENT_ENTRY_PUSHED, $entry);
+	
+			// Prune the array if needed
+			static::_prune();
 		}
-
-		// Push the new entry
-		static::$_entries[] = $entry;
-		static::$_previous = static::$_current++;
-
-		// Prune the array if needed
-		static::_prune();
 	}
 
 	/**
@@ -171,14 +223,35 @@ class History
 	public static function pop()
 	{
 		$return = null;
-
+		
 		if (static::$_current >= 0)
 		{
-			$return = static::$_entries[static::$_current];
-			unset(static::$_entries[static::$_current]);
-			static::$_current = static::$_previous--;
+			// The EVENT_ENTRY_BEFORE_POP callback should return true if it needs to cancel the pop
+			if(static::_trigger_event(static::EVENT_ENTRY_BEFORE_POP, static::$_entries[static::$_current], 'bool') !== true)
+			{
+				$return = static::$_entries[static::$_current];
+				unset(static::$_entries[static::$_current]);
+				static::$_current = static::$_previous--;
+				
+				// Trigger event
+				static::_trigger_event(static::EVENT_ENTRY_POPPED, $return);
+			}
 		}
 
+		return $return;
+	}
+	
+	/**
+	 * Triggers the event in case the option is set to trigger them
+	 */
+	protected static function _trigger_event($event, $data = '', $return_type = 'string')
+	{
+		$return = '';
+		if(static::$_config['events']['trigger'])
+		{
+			$return = \Event::trigger($event, $data, $return_type);
+		}
+		
 		return $return;
 	}
 
@@ -190,18 +263,26 @@ class History
 		$pruned = false;
 		if (($limit = static::$_config['entries']['limit']) > 0 && ($offset = count(static::$_entries) - $limit) > 0)
 		{
-			static::$_entries = array_slice(static::$_entries, $offset);
-
-			// Log Info
-			\Log::info(get_called_class() . "::_prune() - The history stack was pruned because the limit of " . static::$_config['entries']['limit'] . " entries was reached.");
-
-			$pruned = true;
-		}
-
-		if ($pruned || $force_pointers)
-		{
-			// Set pointers to the correct values
-			static::_set_pointers();
+			// The EVENT_ENTRIES_BEFORE_PRUNE callback should return true if it needs to cancel the prune
+			if(static::_trigger_event(static::EVENT_ENTRIES_BEFORE_PRUNE, array('limit' => $limit, 'offset' => $offset), 'bool') !== true)
+			{
+				// Prune the array
+				static::$_entries = array_slice(static::$_entries, $offset);
+	
+				// Log Info
+				\Log::info(get_called_class() . "::_prune() - The history stack was pruned because the limit of " . static::$_config['entries']['limit'] . " entries was reached.");
+	
+				// Trigger event
+				static::_trigger_event(static::EVENT_ENTRIES_PRUNED);
+				
+				$pruned = true;
+			}
+	
+			if ($pruned || $force_pointers)
+			{
+				// Set pointers to the correct values
+				static::_set_pointers();
+			}
 		}
 	}
 
@@ -224,6 +305,9 @@ class History
 
 		// Log Info
 		\Log::info(get_called_class() . "::_set_pointers() - Pointers were recalculated.");
+		
+		// Trigger event
+		static::_trigger_event(static::EVENT_POINTERS_RECALCULATED);
 	}
 
 	/**
@@ -285,6 +369,9 @@ class History
 
 			// Log Info
 			\Log::info(get_called_class() . "::load() - The entries were loaded using the specified driver.");
+			
+			// Trigger event
+			static::_trigger_event(static::EVENT_ENTRIES_LOADED);
 
 			$return = true;
 		}
@@ -302,8 +389,19 @@ class History
 		// Use the driver to store the history information.
 		$return = static::$_driver->save(static::$_entries);
 
-		// Log Info
-		\Log::info(get_called_class() . "::save() - The entries were saved using the specified driver.");
+		if($return)
+		{
+			// Log Info
+			\Log::info(get_called_class() . "::save() - The entries were saved using the specified driver.");
+			
+			// Trigger event
+			static::_trigger_event(static::EVENT_ENTRIES_SAVED);
+		}
+		else
+		{
+			// Log Info
+			\Log::error(get_called_class() . "::save() - The entries could not be saved using the specified driver.");
+		}
 
 		return $return;
 	}
