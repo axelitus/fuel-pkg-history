@@ -53,7 +53,15 @@ class History_Entry implements \Serializable
 		{
 			$this->_data = \Arr::merge(static::$_data_defaults, $data);
 		}
-		(is_null($this->_data['datetime']) or !($this->_data['datetime'] instanceof \Fuel\Core\Date)) and $this->_data['datetime'] = \Date::forge();
+		
+		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
+		if(\Fuel::VERSION >= 1.1)
+		{
+			(is_null($this->_data['datetime']) or !($this->_data['datetime'] instanceof \Fuel\Core\Date)) and $this->_data['datetime'] = \Date::forge();
+		}
+		else {
+			(is_null($this->_data['datetime']) or !($this->_data['datetime'] instanceof \Fuel\Core\Date)) and $this->_data['datetime'] = \Date::factory();
+		}
 	}
 
 	/**
@@ -116,9 +124,20 @@ class History_Entry implements \Serializable
 	 */
 	public function __get($key)
 	{
-		if (($value = \Arr::get($this->_data, $key, null)) === null)
+		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
+		if(\Fuel::VERSION >= 1.1)
 		{
-			throw new History_Entry_Exception("The property '{$key}' does not exist.");
+			if (($value = \Arr::get($this->_data, $key, null)) === null)
+			{
+				throw new History_Entry_Exception("The property '{$key}' does not exist.");
+			}
+		}
+		else
+		{
+			if (($value = \Arr::element($this->_data, $key, null)) === null)
+			{
+				throw new History_Entry_Exception("The property '{$key}' does not exist.");
+			}
 		}
 
 		return $value;

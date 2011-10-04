@@ -45,7 +45,7 @@ return array(
 		'gc' => array(
 			// Whether to use Garbage Collection or not. You should leave this on to prevent data flooding and even collisions.
 			'active' => true,
-			// Seconds that will last the files unmodified before the garbage collector deletes them (optional, default = 900 [15 minutes])
+			// Seconds that will last the unmodified items (files or records depending on driver) before the garbage collector deletes them (optional, default = 900 [15 minutes])
 			'threshold' => 900,
 			// Probability % (between 0 and 100) for garbage collection
 			'probability' => 5

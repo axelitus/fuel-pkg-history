@@ -12,28 +12,57 @@
 
 namespace History;
 
-/**
- * History
- *
- * @package     Fuel
- * @subpackage  History
- */
-class Controller_History extends \Controller
+// TODO: When Fuel PHP v1.1 is released get rid of this fallback
+if(\Fuel::VERSION >= 1.1)
 {
-	public function before()
+	/**
+	 * History
+	 *
+	 * @package     Fuel
+	 * @subpackage  History
+	 */
+	class Controller_History extends \Controller
 	{
-		// Automatically pushes the request to the History stack.
-		History::push_request($this->request);
+		public function before()
+		{
+			// Automatically pushes the request to the History stack.
+			History::push_request($this->request);
+		}
+	
+		public function after($response)
+		{
+			// Automatically saves the History stack (using the loaded driver)
+			// This is done here to allow History stack changes in the controller methods
+			History::save();
+			
+			// Respect the base Controller's return value
+			return $response;
+		}
+	
 	}
-
-	public function after($response)
+}
+else
+{
+	/**
+	 * History
+	 *
+	 * @package     Fuel
+	 * @subpackage  History
+	 */
+	class Controller_History extends \Controller
 	{
-		// Automatically saves the History stack (using the loaded driver)
-		// This is done here to allow History stack changes in the controller methods
-		History::save();
-		
-		// Respect the base Controller's return value
-		return $response;
+		public function before()
+		{
+			// Automatically pushes the request to the History stack.
+			History::push_request($this->request);
+		}
+	
+		public function after()
+		{
+			// Automatically saves the History stack (using the loaded driver)
+			// This is done here to allow History stack changes in the controller methods
+			History::save();
+		}
+	
 	}
-
 }

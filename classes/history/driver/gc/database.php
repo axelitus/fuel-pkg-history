@@ -29,7 +29,16 @@ class History_Driver_GC_Database extends History_Driver_GC
 	 */
 	public function collect()
 	{
-		$expire = \Date::forge(\Date::forge()->get_timestamp() - $this->_config['threshold']);
+		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
+		if(\Fuel::VERSION >= 1.1)
+		{
+			$expire = \Date::forge(\Date::forge()->get_timestamp() - $this->_config['threshold']);
+		}
+		else
+		{
+			$expire = \Date::factory(\Date::factory()->get_timestamp() - $this->_config['threshold']);
+		}
+		
 		$rows_affected = \DB::delete($this->_parent->get_table())->where('updated', '<', $expire->format('%Y-%m-%d %H:%M:%S'))->execute();
 		
 		return $rows_affected;

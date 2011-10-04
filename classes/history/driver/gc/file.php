@@ -35,7 +35,16 @@ class History_Driver_GC_File extends History_Driver_GC
 		$prefix = $this->_parent->get_prefix();
 		if ($handle = opendir($path))
 		{
-			$expire = \Date::forge()->get_timestamp() - $this->_config['threshold'];
+			// TODO: When Fuel PHP v1.1 is released get rid of this fallback
+			if(\Fuel::VERSION >= 1.1)
+			{
+				$expire = \Date::forge()->get_timestamp() - $this->_config['threshold'];
+			}
+			else
+			{
+				$expire = \Date::factory()->get_timestamp() - $this->_config['threshold'];
+			}
+			
 			while (($file = readdir($handle)) !== false)
 			{
 				$fullpath = $path . DS . $file;
