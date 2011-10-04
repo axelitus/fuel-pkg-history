@@ -12,6 +12,10 @@
 
 namespace History;
 
+// @formatter:off
+class History_Driver_Exception extends History_Exception {}
+// @formatter:on
+
 /**
  * History
  *
@@ -97,6 +101,10 @@ abstract class History_Driver
 			if (class_exists($gc))
 			{
 				$this->_gc = $gc::forge($this, $config);
+				
+				// Log Info
+				\Log::info(get_called_class() . "::_load_gc() - The GC collector for the specified driver was loaded.");
+				
 				$this->_gc->start();
 			}
 		}

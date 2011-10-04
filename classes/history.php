@@ -12,6 +12,10 @@
 
 namespace History;
 
+// @formatter:off
+class History_Exception extends \Fuel_Exception {}
+// @formatter:on
+
 /**
  * History
  *
@@ -107,13 +111,24 @@ class History
 
 			// Load the driver
 			$driver = 'History_Driver_' . ucwords(static::$_config['driver']['name']);
-			static::$_driver = $driver::forge(static::$_config['history_id'], static::$_config['driver']);
 
-			// Load previous entries using the driver
-			static::load();
+			if (class_exists($driver))
+			{
+				static::$_driver = $driver::forge(static::$_config['history_id'], static::$_config['driver']);
 
-			// Initialization completed
-			static::$_initialized = true;
+				// Log Info
+				\Log::info(get_called_class() . "::_init() - The specified driver " . static::$_config['driver']['name'] . " ({$driver}) was loaded. ");
+
+				// Load previous entries using the driver
+				static::load();
+
+				// Initialization completed
+				static::$_initialized = true;
+			}
+			else
+			{
+				throw new History_Exception("The specified driver " . static::$_config['driver']['name'] . " ({$driver}) was not found!");
+			}
 		}
 	}
 
@@ -125,6 +140,9 @@ class History
 		// Use the prevent flag when set to prevent refresh entries
 		if (static::$_config['entries']['prevent_refresh'] && static::$_current >= 0 && $entry->equals(static::current()))
 		{
+			// Log Info
+			\Log::info(get_called_class() . "::push() - Refresh entry detected! The options are set to ommit those entries so it was not recorded.");
+
 			return;
 		}
 
@@ -173,6 +191,10 @@ class History
 		if (($limit = static::$_config['entries']['limit']) > 0 && ($offset = count(static::$_entries) - $limit) > 0)
 		{
 			static::$_entries = array_slice(static::$_entries, $offset);
+
+			// Log Info
+			\Log::info(get_called_class() . "::_prune() - The history stack was pruned because the limit of " . static::$_config['entries']['limit'] . " entries was reached.");
+
 			$pruned = true;
 		}
 
@@ -184,7 +206,8 @@ class History
 	}
 
 	/**
-	 * Recalculates and sets the pointers to their correct values
+	 * Recalculates and sets the pointers to their correct values (mainly used after
+	 * pruning)
 	 */
 	private static function _set_pointers()
 	{
@@ -198,6 +221,9 @@ class History
 		}
 
 		static::$_previous = static::$_current - 1;
+
+		// Log Info
+		\Log::info(get_called_class() . "::_set_pointers() - Pointers were recalculated.");
 	}
 
 	/**
@@ -257,6 +283,9 @@ class History
 			// Prune as needed. This will re-calculate the pointers too
 			static::_prune(true);
 
+			// Log Info
+			\Log::info(get_called_class() . "::load() - The entries were loaded using the specified driver.");
+
 			$return = true;
 		}
 
@@ -271,7 +300,12 @@ class History
 	public static function save()
 	{
 		// Use the driver to store the history information.
-		return static::$_driver->save(static::$_entries);
+		$return = static::$_driver->save(static::$_entries);
+
+		// Log Info
+		\Log::info(get_called_class() . "::save() - The entries were saved using the specified driver.");
+
+		return $return;
 	}
 
 }

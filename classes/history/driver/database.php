@@ -12,6 +12,10 @@
 
 namespace History;
 
+// @formatter:off
+class History_Driver_Database_Exception extends History_Exception {}
+// @formatter:on
+
 /**
  * History
  *

@@ -12,6 +12,10 @@
 
 namespace History;
 
+// @formatter:off
+class History_Driver_GC_Exception extends History_Exception {}
+// @formatter:on
+
 /**
  * History
  *
@@ -70,14 +74,17 @@ abstract class History_Driver_GC
 		// By the law of probability we should now COLLECT the garbage!
 		if (mt_rand(0, 100) < $this->_config['probability'])
 		{
-			$this->collect();
+			$items_collected = $this->collect();
+			
+			// Log Info
+			\Log::info(get_called_class() . "::start() - The Garbage Collector for the specified driver has collected {$items_collected} items.");
 		}
 	}
 
 	/**
 	 * Collects the garbage. This method is specific to driver used.
 	 * 
-	 * @return int Number of stacks deleted (files for File driver, rows for Database driver)
+	 * @return int Number of items deleted (files for File driver, rows for Database driver)
 	 */
 	abstract function collect();
 }

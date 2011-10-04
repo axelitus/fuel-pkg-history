@@ -12,6 +12,10 @@
 
 namespace History;
 
+// @formatter:off
+class History_Entry_Exception extends History_Exception {}
+// @formatter:on
+
 /**
  * History
  *
@@ -60,31 +64,32 @@ class History_Entry implements \Serializable
 	public static function forge($data = '')
 	{
 		$options = array();
-		
-		if(is_string($data))
+
+		if (is_string($data))
 		{
 			$uri = new \Uri($data);
 			$options['uri'] = $uri->uri;
 			$options['segments'] = $uri->segments;
 		}
-		else if(is_object($data) && $data instanceof \Uri)
+		else if (is_object($data) && $data instanceof \Uri)
 		{
 			$options['uri'] = $data->uri;
 			$options['segments'] = $data->segments;
 		}
-		else if(is_array($data))
+		else if (is_array($data))
 		{
 			$options = $data;
-			if($options['uri'] != '' && empty($options['segments']))
+			if ($options['uri'] != '' && empty($options['segments']))
 			{
 				$uri = new \Uri($options['uri']);
 				$options['segments'] = $uri->segments;
 			}
 		}
-		else {
-			// TODO: throw exception
+		else
+		{
+			throw new History_Entry_Exception("Cannot forge a History_Entry object from the given parameter \$data.");
 		}
-		
+
 		return new static($options);
 	}
 
@@ -113,7 +118,7 @@ class History_Entry implements \Serializable
 	{
 		if (($value = \Arr::get($this->_data, $key, null)) === null)
 		{
-			throw new \Fuel_Exception("The property '{$key}' does not exist.");
+			throw new History_Entry_Exception("The property '{$key}' does not exist.");
 		}
 
 		return $value;
@@ -169,7 +174,8 @@ class History_Entry implements \Serializable
 			$uri = new \Uri($compare);
 			$segments = $uri->segments;
 			$uri = $uri->uri;
-		} elseif (is_object($compare))
+		}
+		elseif (is_object($compare))
 		{
 			if ($compare instanceof \Uri || $compare instanceof History_Entry)
 			{

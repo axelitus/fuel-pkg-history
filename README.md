@@ -369,11 +369,4 @@ The features for the next version are the ones listed here. (If you have any sug
 
 Features:
 
-* [DONE] Configurable file prefixes for File driver (currently it takes the history_id as prefix)
-* [DONE] Own method for random file name in File driver (currently tempnam() is used)
-* Do some more logging when suitable for purposes of debugging
 * Trigger Fuel\Core\Events when suitable
-* [DONE] Garbage Collector for the File driver
-* [DONE] Add the Session driver
-* [DONE] Add the Database driver draft
-* Create and throw History Exceptions where suitable

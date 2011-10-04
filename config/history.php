@@ -17,7 +17,7 @@ return array(
 	// The driver to be used (optional, default File Driver config)
 	'driver' => array(
 		// The name of the driver to be used (optional, default = 'file'). Options: file|database|session
-		'name' => 'database',
+		'name' => 'file',
 		// Whether to encode the entries (using Fuel\Crypt class) or not (optional, default = true)
 		'secure' => true,
 		// The length of the hash to be used to identify the stack
@@ -45,7 +45,7 @@ return array(
 			'active' => true,
 			// Seconds that will last the files unmodified before the garbage collector deletes them (optional, default = 900 [15 minutes])
 			'threshold' => 900,
-			// probability % (between 0 and 100) for garbage collection
+			// Probability % (between 0 and 100) for garbage collection
 			'probability' => 5
 		)
 	),
