@@ -35,7 +35,7 @@ class History_Driver_GC_File extends History_Driver_GC
 			while (($file = readdir($handle)) !== false)
 			{
 				$fullpath = $path . DS . $file;
-				if(filetype($fullpath) == 'file' && strpos($file, $prefix) === 0 && filemtime($fullpath) < $expire)
+				if(filetype($fullpath) == 'file' && strpos($file, $prefix) === 0 && substr($filename, -strlen($ext)) === $ext &&  filemtime($fullpath) < $expire)
 				{
 					if(@unlink($fullpath))
 					{
