@@ -246,11 +246,7 @@ class History
 	 */
 	protected static function _trigger_event($event, $data = '', $return_type = 'string')
 	{
-		$return = '';
-		if(static::$_config['events']['trigger'])
-		{
-			$return = \Event::trigger($event, $data, $return_type);
-		}
+		$return = \Event::trigger($event, $data, $return_type);
 		
 		return $return;
 	}
