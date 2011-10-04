@@ -14,13 +14,14 @@
 Autoloader::add_core_namespace('History');
 
 Autoloader::add_classes(array(
-	'History\\History'					=> __DIR__.'/classes/history.php',
-	'History\\History_Entry'			=> __DIR__.'/classes/history/entry.php',
-	'History\\History_Driver'			=> __DIR__.'/classes/history/driver.php',
-	'History\\History_Driver_File'		=> __DIR__.'/classes/history/driver/file.php',
-	'History\\History_Driver_Database'	=> __DIR__.'/classes/history/driver/database.php',
-	'History\\History_Driver_Session'	=> __DIR__.'/classes/history/driver/session.php',
-	'History\\History_Driver_GC'		=> __DIR__.'/classes/history/driver/gc.php',
-	'History\\History_Driver_GC_File'	=> __DIR__.'/classes/history/driver/gc/file.php',
-	'History\\Controller_History'		=> __DIR__.'/classes/controller/history.php',
+	'History\\History'						=> __DIR__.'/classes/history.php',
+	'History\\History_Entry'				=> __DIR__.'/classes/history/entry.php',
+	'History\\History_Driver'				=> __DIR__.'/classes/history/driver.php',
+	'History\\History_Driver_File'			=> __DIR__.'/classes/history/driver/file.php',
+	'History\\History_Driver_Database'		=> __DIR__.'/classes/history/driver/database.php',
+	'History\\History_Driver_Session'		=> __DIR__.'/classes/history/driver/session.php',
+	'History\\History_Driver_GC'			=> __DIR__.'/classes/history/driver/gc.php',
+	'History\\History_Driver_GC_File'		=> __DIR__.'/classes/history/driver/gc/file.php',
+	'History\\History_Driver_GC_Database'	=> __DIR__.'/classes/history/driver/gc/database.php',
+	'History\\Controller_History'			=> __DIR__.'/classes/controller/history.php',
 ));
