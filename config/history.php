@@ -18,8 +18,10 @@ return array(
 	'driver' => array(
 		// The name of the driver to be used (optional, default = 'file'). Options: file|database|session
 		'name' => 'file',
-		// Whether to encode the entries (Using Fuel\Crypt class) or not (optional, default = true)
-		'secure' => false,
+		// Whether to encode the entries (using Fuel\Crypt class) or not (optional, default = true)
+		'secure' => true,
+		// The length of the hash to be used to identify the stack
+		'hash_length' => 8,
 		// Contains the specific config for the driver (other drivers will ignore it). This can be ommited when using other drivers
 		'file' => array(
 			// The path to the file to be used for archiving. (optional, default = sys_get_temp_dir())
@@ -28,7 +30,6 @@ return array(
 			'prefix' => 'his_',
 			// The file extension to be used (you must include the dot)
 			'extension' => '.tmp',
-			
 		),
 		'database' => array(
 			// The table name to be used for storing the stack

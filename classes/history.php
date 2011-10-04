@@ -59,6 +59,7 @@ class History
 		'driver' => array(
 			'name' => 'file',
 			'secure' => false,
+			'hash_length' => 8,
 			'file' => array(
 				'path' => '',
 				'prefix' => 'his_',
