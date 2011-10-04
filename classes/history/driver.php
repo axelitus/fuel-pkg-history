@@ -21,11 +21,6 @@ namespace History;
 abstract class History_Driver
 {
 	/**
-	 * @var int Contains the History_Driver hash length
-	 */
-	const HASH_LENGTH = 4;
-	
-	/**
 	 * @var string Contains the History's class history_id (the key in Session)
 	 */
 	protected $_history_id = 'history';
@@ -34,9 +29,9 @@ abstract class History_Driver
 	 * @var array Contains the driver configuration
 	 */
 	protected $_config = array();
-	
+
 	/**
-	 * @var History_Driver_GC Garbage Collector specific for driver if needed 
+	 * @var History_Driver_GC Garbage Collector specific for driver if needed
 	 */
 	protected $_gc = null;
 
@@ -50,6 +45,7 @@ abstract class History_Driver
 	protected static $_config_defaults = array(
 		'name' => 'file',
 		'secure' => true,
+		'hash_length' => 8,
 		'file' => array(
 			'path' => '',
 			'prefix' => 'his_',
@@ -87,8 +83,10 @@ abstract class History_Driver
 		{
 			$this->_config = \Arr::merge(static::$_config_defaults, $config);
 		}
+		// The hash length must be between 1 and 40
+		$this->_config['hash_length'] = (($this->_config['hash_length'] > 0 && $this->_config['hash_length'] < 41) ? $this->_config['hash_length'] : 8);
 	}
-	
+
 	/**
 	 * Loads the GC if it exists
 	 */
@@ -96,8 +94,11 @@ abstract class History_Driver
 	{
 		// If exists then load the Garbage Collector for the driver and start it
 		$gc = 'History_Driver_GC_' . ucwords($this->_config['name']);
-		class_exists($gc) and $this->_gc = $gc::forge($this, $config);
-		$this->_gc->start();
+		if (class_exists($gc))
+		{
+			$this->_gc = $gc::forge($this, $config);
+			$this->_gc->start();
+		}
 	}
 
 	/**
@@ -109,18 +110,18 @@ abstract class History_Driver
 	{
 		return new static($history_id, $config);
 	}
-	
+
 	/**
 	 * Generates a random hash
 	 */
-	protected static function _gen_hash()
+	protected function _gen_hash()
 	{
 		// Some random magic!
 		$rand = mt_rand();
-		
-		// The max number of chars is 40 as that is the length of a sha1
-		$hash = substr(md5($rand), 0, min(static::HASH_LENGTH, 40));
-		
+
+		// Generate the hash using the hash_lnegth config value
+		$hash = substr(md5($rand), 0, $this->_config['hash_length']);
+
 		return $hash;
 	}
 
