@@ -77,6 +77,7 @@ return array(
 	'driver' => array(
 		'name' => 'file',
 		'secure' => true,
+		'hash_length' => 8,
 		'file' => array(
 			'path' => '',
 			'prefix' => 'his_',
@@ -135,15 +136,51 @@ If a refresh is detected the new entry will be discarded, thus not registering i
 
 ### Driver specifics
 
-Coming soon...
+This section holds some driver specific configurations and notes.
 
 #### File driver
 
-Coming soon...
+The file driver uses a specific config key named 'file' with the following options:
+
+```
+'database' => array(
+	'path' => 'path_to_store_files',
+	'prefix' => 'perfix_to_use_for_files',
+	'extension' => 'extension_to_use_for_files',
+)
+
+If something fails please verify the following:
+
+* Make sure that the specified path is writeable
+
+WARNINGS! (Please take a look at this or you could experience some problems):
+
+* The File Garbage Collector will collect *ALL* files that meet the codnitions:
+	- Filename starts with prefix 'prefix' and has extension 'extension'
+	- File is expired using the 'threshold' value
+
+So please make sure that you use a dedicated path for this, or the prefix is unique to the History stack to rpevent loss of other data.
 
 #### Database driver
 
-Coming soon...
+The table structure that the Database driver relies on is the following:
+
+```
+CREATE TABLE `history` (
+  `hash` varchar(16) NOT NULL,
+  `content` text,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`hash`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+```
+
+The database driver uses a specific config key named 'database' with the following options:
+
+```
+'database' => array(
+	'table' => 'name_of_table'
+)
+```
 
 #### Session driver
 
@@ -321,7 +358,7 @@ if($entry->equals($uri->uri))
 
 The first version has the basic functionality one would expect. New features will be evaluated and added as soon as possible.
 
-### Next features
+### Features for 1.0 Release
 
 The features for the next version are the ones listed here. (If you have any suggestions feel free to send them using [GitHub](https://github.com/axelitus) or send an email to dev [at] axelitus [dot] mx)
 
@@ -329,9 +366,9 @@ Features:
 
 * [DONE] Configurable file prefixes for File driver (currently it takes the history_id as prefix)
 * [DONE] Own method for random file name in File driver (currently tempnam() is used)
-* Do some more logging when suitable for purposes debugging
+* Do some more logging when suitable for purposes of debugging
 * Trigger Fuel\Core\Events when suitable
 * [DONE] Garbage Collector for the File driver
 * Add the Session driver
-* Add the Database driver draft
+* [DONE] Add the Database driver draft
 * Create and throw History Exceptions where suitable
