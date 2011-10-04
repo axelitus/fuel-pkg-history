@@ -23,11 +23,6 @@ namespace History;
 class History_Driver_File extends History_Driver
 {
 	/**
-	 * @var int Contains the lenght of the hash value to be used  
-	 */
-	const HASH_LENGTH = 8;
-	
-	/**
 	 * @var string Contains the path to the stored files
 	 */
 	protected $_path = '';

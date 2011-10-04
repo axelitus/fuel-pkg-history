@@ -25,6 +25,8 @@ class History_Driver_GC_File extends History_Driver_GC
 	 */
 	public function collect()
 	{
+		$return = 0;
+		
 		$path = $this->_parent->get_path();
 		$prefix = $this->_parent->get_prefix();
 		if ($handle = opendir($path))
@@ -35,11 +37,16 @@ class History_Driver_GC_File extends History_Driver_GC
 				$fullpath = $path . DS . $file;
 				if(filetype($fullpath) == 'file' && strpos($file, $prefix) === 0 && filemtime($fullpath) < $expire)
 				{
-					@unlink($fullpath);
+					if(@unlink($fullpath))
+					{
+						$return++;
+					}
 				}
 			}
 			closedir($handle);
 		}
+		
+		return $return;
 	}
 
 }
