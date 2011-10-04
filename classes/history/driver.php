@@ -49,15 +49,11 @@ abstract class History_Driver
 		'file' => array(
 			'path' => '',
 			'prefix' => 'his_',
-			'extension' => 'tmp',
-			
+			'extension' => 'tmp'
 		),
 		'database' => array(
 			'table' => 'history',
-			'gc' => array(
-				'threshold' => 900,
-				'probability' => 5
-			)
+			'auto_create' => true
 		),
 		'session' => array(
 		),

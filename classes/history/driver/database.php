@@ -29,6 +29,25 @@ class History_Driver_Database extends History_Driver
 	 * @var string Contains the hash of stored record (it's just a random id)
 	 */
 	protected $_hash = '';
+	
+	/**
+	 * @var array Contains the table structure to be used with the function \DBUtil::create_database()
+	 */
+	// @formatter:off
+	protected $_table_fields = array(
+		'hash' => array(
+			'type' => 'varchar',
+			'constraint' => 40			// 40 is the maximum length for hash (using sha1)
+		),
+		'content' => array(
+			'type' => 'mediumtext',		// Can hold up to 16Mb of data, this should be more tha enough
+			'null' => true
+		),
+		'updated' => array(
+			'type' => 'datetime'
+		) 
+	);
+	// @formatter:on
 
 	/**
 	 * Prevent direct instantiation. The parent's forge() method must be used to
@@ -43,7 +62,18 @@ class History_Driver_Database extends History_Driver
 		$this->_table = $this->_config[$driver]['table'];
 		if (!static::_table_exists($this->_table))
 		{
-			throw new \Fuel_Exception("Database table does not exist.");
+			if($this->_config[$driver]['auto_create'])
+			{
+				\DBUtil::create_table($this->_table, $this->_table_fields, array('hash'));
+				if(!static::_table_exists($this->_table))
+				{
+					throw new \Fuel_Exception("Database table could not be created.");
+				}
+			}
+			else
+			{
+				throw new \Fuel_Exception("Database table does not exist.");
+			}
 		}
 
 		if (!($this->_hash = \Session::get($this->_history_id . ".file", false)))

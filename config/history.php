@@ -17,7 +17,7 @@ return array(
 	// The driver to be used (optional, default File Driver config)
 	'driver' => array(
 		// The name of the driver to be used (optional, default = 'file'). Options: file|database|session
-		'name' => 'file',
+		'name' => 'database',
 		// Whether to encode the entries (using Fuel\Crypt class) or not (optional, default = true)
 		'secure' => true,
 		// The length of the hash to be used to identify the stack
@@ -29,11 +29,13 @@ return array(
 			// The prefix used for the filenames
 			'prefix' => 'his_',
 			// The file extension to be used (you must include the dot)
-			'extension' => '.tmp',
+			'extension' => '.tmp'
 		),
 		'database' => array(
 			// The table name to be used for storing the stack
 			'table' => 'history',
+			// Determines if tabel should be created if it does not exist
+			'auto_create' => true
 		),
 		'session' => array(
 		),

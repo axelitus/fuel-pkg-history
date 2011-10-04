@@ -136,7 +136,7 @@ When set to true this option prevents duplicate entries by refresh. What it esse
 
 ### Driver specifics
 
-This section holds some driver specific configurations and notes.
+This section holds some driver specific configurations and notes. To know what every specific driver option does please refer to the package config file ('history.php' under config folder).
 
 #### File driver
 
@@ -167,18 +167,19 @@ The table structure that the Database driver relies on is the following:
 
 ```
 CREATE TABLE `history` (
-  `hash` varchar(16) NOT NULL,
-  `content` text,
+  `hash` varchar(40) NOT NULL,
+  `content` mediumtext,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`hash`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+) DEFAULT CHARSET=utf8
 ```
 
 The database driver uses a specific config key named 'database' with the following options:
 
 ```
 'database' => array(
-	'table' => 'name_of_table'
+	'table' => 'name_of_table',
+	'auto_create' => boolean
 )
 ```
 

@@ -63,11 +63,11 @@ class History
 			'file' => array(
 				'path' => '',
 				'prefix' => 'his_',
-				'extension' => '.tmp',
-				
+				'extension' => '.tmp'
 			),
 			'database' => array(
 				'table' => 'history',
+				'auto_create' => true
 			),
 			'session' => array(
 			),
