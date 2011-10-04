@@ -131,8 +131,7 @@ This value limits the entries that the stack will record. This works in the FIFO
 
 ##### prevent_refresh (type: bool, default: true)
 
-When set to true this option prevents duplicate entries by refresh. What it essentially does is that it does not allow an exact follow-up entry.
-If a refresh is detected the new entry will be discarded, thus not registering it completely.
+When set to true this option prevents duplicate entries by refresh. What it essentially does is that it does not allow an exact follow-up entry. If a refresh is detected the new entry will be discarded, thus not registering it completely.
 
 ### Driver specifics
 
@@ -153,7 +152,7 @@ If something fails please verify the following:
 
 * Make sure that the specified path is writeable
 
-WARNINGS! (Please take a look at this or you could experience some problems):
+WARNING! (Please take a look at this or you could experience some problems):
 
 * The File Garbage Collector will collect *ALL* files that meet the codnitions:
 	- Filename starts with prefix 'prefix' and has extension 'extension'
@@ -184,7 +183,11 @@ The database driver uses a specific config key named 'database' with the followi
 
 #### Session driver
 
-Coming soon...
+The Session driver uses the \Session core class to store the entries stack. This driver is intended to be used with care as it relies on the capabilities of the underlying class. This means that it dependes on the chosen driver to handle the sessions across Fuel. You should be aware of how the driver handles data and what it's limits are.
+
+WARNING!:
+
+* When using the 'cookie' driver for the session, the storage capacity is limited to 4kb (that means that the history stack and any other data you are storing in the session counts towards this limit). When this limit is reached you'll see this message: "The session data stored by the application in the cookie exceeds 4Kb. Select a different session storage driver". Use this with care as it may broke your app completely. You are encourage to use this combination with a small entries limit like 2 (current and previous only).
 
 ### Methods
 
@@ -369,6 +372,6 @@ Features:
 * Do some more logging when suitable for purposes of debugging
 * Trigger Fuel\Core\Events when suitable
 * [DONE] Garbage Collector for the File driver
-* Add the Session driver
+* [DONE] Add the Session driver
 * [DONE] Add the Database driver draft
 * Create and throw History Exceptions where suitable
