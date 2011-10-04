@@ -62,6 +62,7 @@ abstract class History_Driver
 		'session' => array(
 		),
 		'gc' => array(
+			'active' => true,
 			'threshold' => 900,
 			'probability' => 5
 		)
@@ -92,12 +93,16 @@ abstract class History_Driver
 	 */
 	protected function _load_gc(array $config = array())
 	{
-		// If exists then load the Garbage Collector for the driver and start it
-		$gc = 'History_Driver_GC_' . ucwords($this->_config['name']);
-		if (class_exists($gc))
+		// Is Garbage Collector active?
+		if ($config['active'])
 		{
-			$this->_gc = $gc::forge($this, $config);
-			$this->_gc->start();
+			// If exists then load the Garbage Collector for the driver and start it
+			$gc = 'History_Driver_GC_' . ucwords($this->_config['name']);
+			if (class_exists($gc))
+			{
+				$this->_gc = $gc::forge($this, $config);
+				$this->_gc->start();
+			}
 		}
 	}
 

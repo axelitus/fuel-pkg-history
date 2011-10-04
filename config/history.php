@@ -39,6 +39,8 @@ return array(
 		),
 		// Garbage Collector options for driver
 		'gc' => array(
+			// Whether to use Garbage Collection or not. You should leave this on to prevent data flooding and even collisions.
+			'active' => true,
 			// Seconds that will last the files unmodified before the garbage collector deletes them (optional, default = 900 [15 minutes])
 			'threshold' => 900,
 			// probability % (between 0 and 100) for garbage collection

@@ -84,6 +84,7 @@ return array(
 			'extension' => '.tmp',
 		),
 		'gc' => array(
+			'active' => true,
 			'threshold' => 900,
 			'probability' => 5
 		)

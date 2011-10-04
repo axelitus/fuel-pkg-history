@@ -72,6 +72,7 @@ class History
 			'session' => array(
 			),
 			'gc' => array(
+				'active' => true,
 				'threshold' => 900,
 				'probability' => 5
 			)
