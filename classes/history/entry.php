@@ -155,33 +155,41 @@ class History_Entry implements \Serializable
 	}
 
 	/**
-	 * Gets the controller part from the uri in the History_Entry object. Returns an
-	 * empty string if none is found or the uri is empty. If using Routes this won't
-	 * match the really executed controller as the History class records only the uri
+	 * Gets the controller part from the uri in the History_Entry object. Returns
+	 * null if none is found or the uri is empty. If using Routes this won't match
+	 * the really executed controller as the History class records only the uri
 	 * Requests.
 	 *
-	 * @return string The name of the controller part from the entry
+	 * @return string|null The name of the controller part from the entry
 	 */
 	public function get_controller()
 	{
-		$segments = \Arr::get($this->_data, 'segments', array());
-
-		return (isset($segments[0]) ? $segments[0] : '');
+		return $this->get_segment(0);
 	}
 
 	/**
-	 * Gets the method part from the uri in the History_Entry object. Returns an
-	 * empty string if none is found or the uri is empty or contains only the
-	 * controller part. If using Routes this won't match the really executed method
-	 * in the controller as the History class records only the uri Requests.
+	 * Gets the method part from the uri in the History_Entry object. Returns null if
+	 * none is found or the uri is empty or contains only the controller part. If
+	 * using Routes this won't match the really executed method in the controller as
+	 * the History class records only the uri Requests.
 	 *
-	 * @return string The name of the method part from the entry
+	 * @return string|null The name of the method part from the entry
 	 */
 	public function get_method()
 	{
+		return $this->get_segment(1);
+	}
+
+	/**
+	 * Gets the segment specified by given param.
+	 *
+	 * @return string|null The uri segment or null if it does not exists
+	 */
+	public function get_segment($segment = 0)
+	{
 		$segments = \Arr::get($this->_data, 'segments', array());
 
-		return (isset($segments[1]) ? $segments[1] : '');
+		return (isset($segments[$segment]) ? $segments[$segment] : null);
 	}
 
 	/**
