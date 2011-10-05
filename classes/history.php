@@ -155,6 +155,8 @@ class History
 		// Push the new entry
 		static::$_entries[] = $entry;
 		static::$_previous = static::$_current++;
+		
+		var_dump(static::$_previous, static::$_current);
 
 		// Prune the array if needed
 		static::_prune();
@@ -295,7 +297,7 @@ class History
 	 */
 	public static function previous()
 	{
-		return (static::$_previous >= 0) ? static::$_entries[static::$_current] : null;
+		return (static::$_previous >= 0) ? static::$_entries[static::$_previous] : null;
 	}
 
 	/**
