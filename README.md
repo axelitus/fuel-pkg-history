@@ -287,6 +287,10 @@ The useful methods (and the ones that you will be using the most (if not the onl
 
 This is the main class which handles the History stack.
 
+##### History::VERSION
+
+Contains a string for the current version of the package.
+
 ##### History::push(History_Entry $entry)
 
 Description: Pushes a History_Entry to the History stack.
@@ -393,85 +397,6 @@ Static: Yes
 ```
 History::save();
 ```
-
-##### Events
-
-To register callbacks for the events you can do so using one of the following three alternatives:
-
-* Non-static methods
-	- For non-static methods use the instance of the object you want it's method to be called:
-
-	```
-	\Event::register(History::EVENT, array($object_instance, 'callback'));
-	```
-
-* Static methods
-	- For static methods you can use either a string:
-	```
-	\Event::register(History::EVENT, 'Classname::method');
-	```
-	- Or you can use an array:
-	```
-	\Event::register(History::EVENT, array('Classname', 'method');
-	```
-
-Note: The recommended callback is a static method.
-
-Please understand the normal flow of the History class and when the Events are triggered as you may find yourself struggling while 'missing' some events. This can happen while extending the Controller_History as the class loads entries, recalculates pointers and pushes an entry automatically in the before() method (thus raising EVENT_ENTRIES_LOADED, EVENT_POINTERS_RECALCULATED, EVENT_ENTRY_BEFORE_PUSH, EVENT_ENTRY_PUSHED [if not ommited because of refresh] in that order from within that method) and saves entries in the after() method automatically (thus raising the EVENT_ENTRIES_SAVED in that order from within that method).
-
-The History class triggers the following events:
-
-###### EVENT_ENTRY_BEFORE_PUSH
-
-This event fires up right before an entry is pushed into the stack. The data that is sent to the callback is the History_Entry that will be pushed into the stack. If you need to cancel the push you should return true (cancel = true) from the callback.
-
-###### EVENT_ENTRY_PUSH_OMMITED
-
-This event fires up when an entry's push is ommited because a refresh is detected. The data that is sent to the callback is the History_Entry that should have been pushed into the stack. You should *NEVER* try to push an entry from within a callback for this event as this may create a loop.
-
-###### EVENT_ENTRY_PUSH_CANCELED
-
-This event fires up when an entry's push is canceled in the EVENT_ENTRY_BEFORE_PUSH. The data that is sent to the callback is the History_Entry that should have been pushed into the stack. You should *NEVER* try to push an entry from within a callback for this event as this may create a loop, you should better debug why is the push being cancelled.
-
-###### EVENT_ENTRY_PUSHED
-
-This event fires up right after an entry is pushed to the stack. The data that is sent to the callback is the History_Entry that has been pushed into the stack.
-
-###### EVENT_ENTRY_BEFORE_POP
-
-This event fires up right before an entry is popped from the stack. The data that is sent to the callback is the 'current' History_Entry (that's the one that will be popped from the stack). If you need to cancel the pop you should return true (cancel = true) from the callback.
-
-###### EVENT_ENTRY_POP_CANCELED
-
-This event fires up when an entry's pop is canceled in the EVENT_ENTRY_BEFORE_POP. The data that is sent to the callback is the 'current' History_Entry (that's the one that will be popped from the stack). You should *NEVER* try to pop an entry from within a callback for this event as this may create a loop, you should better debug why is the pop being cancelled.
-
-###### EVENT_ENTRY_POPPED
-
-This event fires up right after an entry is popped from the stack. The data that is sent to the callback is the History_Entry that has been popped from the stack.
-
-###### EVENT_ENTRIES_LOADED
-
-This event fires up right after the entries were loaded using the specified driver. No data is sent to the callback.
-
-###### EVENT_ENTRIES_SAVED
-
-This event fires up right after the entries were saved using the specified driver. No data is sent to the callback.
-
-###### EVENT_ENTRIES_BEFORE_PRUNE
-
-This event fires up right before the entries stack is pruned. The data that is sent to the callback is an array containig the 'limit' of entries and the 'offset' from where it will be pruned. If you need to cancel the prune you should return true (cancel = true) from the callback.
-
-###### EVENT_ENTRY_PRUNE_CANCELED
-
-This event fires up when a stack prune is cancelled in the EVENT_ENTRY_BEFORE_PRUNE. The data that is sent to the callback is an array containig the 'limit' of entries and the 'offset' from where it should have been pruned. You should *NEVER* try to prune from within a callback for this event as this may create a loop, you should better debug why is the prune being cancelled.
-
-###### EVENT_ENTRIES_PRUNED
-
-This event fires up right after the entries stack was pruned. No data is sent to the callback.
-
-###### EVENT_POINTERS_RECALCULATED
-
-This event fires up right after the pointers were recalculated. No data is sent to the callback.
 
 #### History_Entry class
 
@@ -603,3 +528,4 @@ Special thanks for he ones that helped by commenting, discussing, suggesting, te
 * [ShonM] (https://github.com/ShonM)
 * [rclanan] (https://github.com/rclanan)
 * [canton7] (https://github.com/canton7)
+* [FrenkyNet] (https://github.com/FrenkyNet)
