@@ -30,6 +30,16 @@ class History
 	const EVENT_ENTRY_BEFORE_PUSH = 'history_entry_before_push';
 	
 	/**
+	 * @var string Contains the id for the Event EVENT_ENTRY_PUSH_OMMITED
+	 */
+	const EVENT_ENTRY_PUSH_OMMITED = 'history_entry_push_ommited';
+	
+	/**
+	 * @var string Contains the id for the Event EVENT_ENTRY_PUSH_CANCELED
+	 */
+	const EVENT_ENTRY_PUSH_CANCELED = 'history_entry_push_canceled';
+	
+	/**
 	 * @var string Contains the id for the Event ENTRY_PUSHED
 	 */
 	const EVENT_ENTRY_PUSHED = 'history_entry_pushed';
@@ -38,6 +48,11 @@ class History
 	 * @var string Contains the id for the Event ENTRY_BEFORE_POP
 	 */
 	const EVENT_ENTRY_BEFORE_POP = 'history_entry_before_pop';
+	
+	/**
+	 * @var string Contains the id for the Event EVENT_ENTRY_POP_CANCELED
+	 */
+	const EVENT_ENTRY_POP_CANCELED = 'history_entry_pop_canceled';
 	
 	/**
 	 * @var string Contains the id for the Event ENTRY_POPPED
@@ -58,6 +73,11 @@ class History
 	 * @var string Contains the id for the Event ENTRIES_PRUNED
 	 */
 	const EVENT_ENTRIES_BEFORE_PRUNE = 'history_entries_before_prune';
+	
+	/**
+	 * @var string Contains the id for the Event EVENT_ENTRY_PRUNE_CANCELED
+	 */
+	const EVENT_ENTRY_PRUNE_CANCELED = 'history_entry_prune_canceled';
 	
 	/**
 	 * @var string Contains the id for the Event ENTRIES_PRUNED
@@ -183,13 +203,16 @@ class History
 	public static function push(History_Entry $entry)
 	{
 		// The EVENT_ENTRY_BEFORE_PUSH callback should return true if it needs to cancel the push
-		if(static::_trigger_event(static::EVENT_ENTRY_BEFORE_PUSH, $entry, 'bool') !== true)
+		if(static::_cancel_action(static::_trigger_event(static::EVENT_ENTRY_BEFORE_PUSH, $entry, 'array')) !== true)
 		{
 			// Use the prevent flag when set to prevent refresh entries
 			if (static::$_config['entries']['prevent_refresh'] && static::$_current >= 0 && $entry->equals(static::current()))
 			{
 				// Log Info
 				\Log::info(get_called_class() . "::push() - Refresh entry detected! The options are set to ommit those entries so it was not recorded.");
+				
+				// Trigger event
+				static::_trigger_event(static::EVENT_ENTRY_PUSH_OMMITED, $entry, 'none');
 	
 				return;
 			}
@@ -199,10 +222,15 @@ class History
 			static::$_previous = static::$_current++;
 			
 			// Trigger event
-			static::_trigger_event(static::EVENT_ENTRY_PUSHED, $entry);
+			static::_trigger_event(static::EVENT_ENTRY_PUSHED, $entry, 'none');
 	
 			// Prune the array if needed
 			static::_prune();
+		}
+		else
+		{
+			// Trigger event
+			static::_trigger_event(static::EVENT_ENTRY_PUSH_CANCELED, $entry, 'none');
 		}
 	}
 
@@ -227,14 +255,19 @@ class History
 		if (static::$_current >= 0)
 		{
 			// The EVENT_ENTRY_BEFORE_POP callback should return true if it needs to cancel the pop
-			if(static::_trigger_event(static::EVENT_ENTRY_BEFORE_POP, static::$_entries[static::$_current], 'bool') !== true)
+			if(static::_cancel_action(static::_trigger_event(static::EVENT_ENTRY_BEFORE_POP, static::$_entries[static::$_current], 'array')) !== true)
 			{
 				$return = static::$_entries[static::$_current];
 				unset(static::$_entries[static::$_current]);
 				static::$_current = static::$_previous--;
 				
 				// Trigger event
-				static::_trigger_event(static::EVENT_ENTRY_POPPED, $return);
+				static::_trigger_event(static::EVENT_ENTRY_POPPED, $return, 'none');
+			}
+			else
+			{
+				// Trigger event
+				static::_trigger_event(static::EVENT_ENTRY_POP_CANCELED, $entry, 'none');
 			}
 		}
 
@@ -250,6 +283,20 @@ class History
 		
 		return $return;
 	}
+	
+	/**
+	 * Verifies if the action should be cancelled because of a callback response
+	 */
+	protected static function _cancel_action(array $calls)
+	{
+		foreach($calls as $call){
+			if($call === true){
+				return true;
+			}
+		}
+		
+		return false;
+	} 
 
 	/**
 	 * Prunes the array if needed depending on the limit config value.
@@ -260,7 +307,7 @@ class History
 		if (($limit = static::$_config['entries']['limit']) > 0 && ($offset = count(static::$_entries) - $limit) > 0)
 		{
 			// The EVENT_ENTRIES_BEFORE_PRUNE callback should return true if it needs to cancel the prune
-			if(static::_trigger_event(static::EVENT_ENTRIES_BEFORE_PRUNE, array('limit' => $limit, 'offset' => $offset), 'bool') !== true)
+			if(static::_cancel_action(static::_trigger_event(static::EVENT_ENTRIES_BEFORE_PRUNE, array('limit' => $limit, 'offset' => $offset), 'array')) !== true)
 			{
 				// Prune the array
 				static::$_entries = array_slice(static::$_entries, $offset);
@@ -269,9 +316,14 @@ class History
 				\Log::info(get_called_class() . "::_prune() - The history stack was pruned because the limit of " . static::$_config['entries']['limit'] . " entries was reached.");
 	
 				// Trigger event
-				static::_trigger_event(static::EVENT_ENTRIES_PRUNED);
+				static::_trigger_event(static::EVENT_ENTRIES_PRUNED, '', 'none');
 				
 				$pruned = true;
+			}
+			else
+			{
+				// Trigger event
+				static::_trigger_event(static::EVENT_ENTRY_PRUNE_CANCELED, array('limit' => $limit, 'offset' => $offset), 'none');
 			}
 		}
 		
@@ -302,7 +354,7 @@ class History
 		\Log::info(get_called_class() . "::_set_pointers() - Pointers were recalculated.");
 		
 		// Trigger event
-		static::_trigger_event(static::EVENT_POINTERS_RECALCULATED);
+		static::_trigger_event(static::EVENT_POINTERS_RECALCULATED, '', 'none');
 	}
 
 	/**
@@ -359,14 +411,14 @@ class History
 			// Load the driver. This will fill the entries array
 			static::$_entries = static::$_driver->load();
 
-			// Prune as needed. This will re-calculate the pointers too
-			static::_prune(true);
-
 			// Log Info
 			\Log::info(get_called_class() . "::load() - The entries were loaded using the specified driver.");
 			
 			// Trigger event
-			static::_trigger_event(static::EVENT_ENTRIES_LOADED);
+			static::_trigger_event(static::EVENT_ENTRIES_LOADED, '', 'none');
+			
+			// Prune as needed. This will re-calculate the pointers too
+			static::_prune(true);
 
 			$return = true;
 		}
@@ -390,7 +442,7 @@ class History
 			\Log::info(get_called_class() . "::save() - The entries were saved using the specified driver.");
 			
 			// Trigger event
-			static::_trigger_event(static::EVENT_ENTRIES_SAVED);
+			static::_trigger_event(static::EVENT_ENTRIES_SAVED, '', 'none');
 		}
 		else
 		{
