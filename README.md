@@ -65,6 +65,8 @@ Then just run the following command on the terminal from where the oil command i
 php oil package install pkg-history folder=history
 ```
 
+This method will change when Fuel v1.1 is released.
+
 ## Usage
 
 The first thing you should do is load the package. This can be achieved manually by calling:
@@ -235,7 +237,9 @@ This is the main class which handles the History stack.
 
 ##### History::push(History_Entry $entry)
 
-Description: Pushes a History_Entry to the History stack
+Description: Pushes a History_Entry to the History stack.
+
+Static: Yes
 
 ```
 History::push($entry);
@@ -243,7 +247,9 @@ History::push($entry);
 
 ##### History::push_request(\Fuel\Core\Request $request)
 
-Description: Pushes a History_Entry based on a \Fuel\Core\Request to the History stack
+Description: Pushes a History_Entry based on a \Fuel\Core\Request to the History stack.
+
+Static: Yes
 
 ```
 // From a Controller method
@@ -253,6 +259,9 @@ History::push_request($this->request);
 ##### History::pop()
 
 Description: Pops the top-most (current) History_Entry from the History.
+
+Static: Yes
+
 Note: this will shorten the entries by one element.
 
 ```
@@ -261,7 +270,9 @@ $entry = History::pop();
 
 ##### History::get_entries()
 
-Description: Gets the entries as an array
+Description: Gets the entries as an array.
+
+Static: Yes
 
 ```
 $entries = History::get_entries();
@@ -273,7 +284,9 @@ foreach($entries as $entry)
 
 ##### History::count()
 
-Description: Gets the history entries count
+Description: Gets the history entries count.
+
+Static: Yes
 
 ```
 $count = History::count();
@@ -285,25 +298,35 @@ if($count > 10)
 
 ##### History::current()
 
-Description: Gets the current History entry
+Description: Gets the current History entry.
+
+Static: Yes
 
 ```
 $entry = History::current();
 echo $entry->uri;
+echo $entry->get_controller();
+echo $entry->get_method();
 ```
 
 ##### History::previous()
 
-Description: Gets the previous History entry
+Description: Gets the previous History entry.
+
+Static: Yes
 
 ```
 $entry = History::previous();
 echo $entry->uri;
+echo $entry->get_controller();
+echo $entry->get_method();
 ```
 
 ##### History::load()
 
-Description: Loads the stored entries to the History stack using the configured driver
+Description: Loads the stored entries to the History stack using the configured driver.
+
+Static: Yes
 
 ```
 History::load();
@@ -311,7 +334,9 @@ History::load();
 
 ##### History::save()
 
-Description: Saves the History to a store using the configured driver
+Description: Saves the History to a store using the configured driver.
+
+Static: Yes
 
 ```
 History::save();
@@ -337,6 +362,8 @@ To register callbacks for the events you can do so using one of the following th
 	```
 	\Event::register(History::EVENT, array('Classname', 'method');
 	```
+
+Note: The recommended callback is a static method.
 
 Please understand the normal flow of the History class and when the Events are triggered as you may find yourself struggling while 'missing' some events. This can happen while extending the Controller_History as the class loads entries, recalculates pointers and pushes an entry automatically in the before() method (thus raising EVENT_ENTRIES_LOADED, EVENT_POINTERS_RECALCULATED, EVENT_ENTRY_BEFORE_PUSH, EVENT_ENTRY_PUSHED [if not ommited because of refresh] in that order from within that method) and saves entries in the after() method automatically (thus raising the EVENT_ENTRIES_SAVED in that order from within that method).
 
@@ -400,7 +427,9 @@ This class represents an entry in the History stack.
 
 ##### History_Entry::forge($data)
 
-Description: Forges a new History_Entry object. It can take an array of data, an \Uri object or an uri string
+Description: Forges a new History_Entry object. It can take an array of data, an \Uri object or an uri string.
+
+Static: Yes
 
 ```
 $data = array(
@@ -414,20 +443,46 @@ $data = array(
 $entry = History_Entry::forge($data);
 ```
 
-The only required data option is uri. (In fact, instead of an array one could use only the uri string. All other values are automatically created) 
+The only required data option is uri. (In fact, instead of an array one could use only the uri string. All other values would be automatically created).
 
 ##### History_Entry::from_request(\Fuel\Core\Request $request)
 
-Description: Forges a new History_Entry from a Fuel\Core\Request object
+Description: Forges a new History_Entry from a Fuel\Core\Request object.
+
+Static: Yes
 
 ```
 // From a Controller method
 $entry = History_Entry::from_request($this->request);
 ```
 
+##### History_Entry->get_controller()
+
+Description: Gets the controller part from the uri in the History_Entry object. Returns an empty string if none is found or the uri is empty. If using Routes this won't match the really executed controller as the History class records only the uri Requests.
+
+Static: No
+
+```
+$entry = History_Entry::forge('welcome/index');
+$controller = $entry->get_controller();
+```
+
+##### History_Entry->get_method()
+
+Description: Gets the method part from the uri in the History_Entry object. Returns an empty string if none is found or the uri is empty or contains only the controller part. If using Routes this won't match the really executed method in the controller as the History class records only the uri Requests.
+
+Static: No
+
+```
+$entry = History_Entry::forge('welcome/index');
+$method = $entry->get_method();
+```
+
 ##### History_Entry->serialize()
 
-Description: Serializes the History_Entry object
+Description: Serializes the History_Entry object.
+
+Static: No
 
 ```
 $entry = History_Entry::forge('/');
@@ -436,7 +491,9 @@ $serialized = $entry->serialize();
 
 ##### History_Entry->unserialize($str)
 
-Description: Unserializes the entries' string to the History_Entry object
+Description: Unserializes the entries' string to the History_Entry object. All instance members will be overwritten.
+
+Static: No
 
 ```
 $serialized_string = 'a:1:{i:0;C:21:"History\History_Entry":195:{a:3:{s:3:"uri";s:13:"welcome/index";s:8:"segments";a:2:{i:0;s:7:"welcome";i:1;s:5:"index";}s:8:"datetime";O:14:"Fuel\Core\Date":2:{s:12:" * timestamp";i:1317144358;s:11:" * timezone";s:3:"UTC";}}}}';
@@ -448,6 +505,8 @@ Note: the serialized string it's just a close-to-real example
 
 Description: Compares this History_Entry instance with another and determines if they are equal.
 It can be compared to a string (uri), a \Fuel\Uri object or a History_entry object.
+
+Static: Yes
 
 ```
 $uri = new \Uri('/');
