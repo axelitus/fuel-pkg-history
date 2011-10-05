@@ -7,12 +7,28 @@ The data (History entries stack) itself is stored depending on the driver you ch
 
 ## About
 
-* Version: 1.0
+* Latest Version: 1.0
+* Release Date: 05/10/2011
 * Author: Axel Pardemann ([http://axelitus.mx] (http://axelitus.mx))
+
+## Requirements
+
+* Fuel PHP Framework version 1.0.1 or later (v1.1 will be preferred when it gets released)
+* MySql Database v5.0 or later (if using the database driver)
 
 ## Development Team
 
 * Axel Pardemann - Lead Developer ([http://dev.blogs.axelitus.mx] (http://dev.blogs.axelitus.mx))
+
+## Repository
+
+You can find the GitHub Repository on (https://github.com/axelitus/fuel-pkg-history)
+
+## Suggestions / Issues / Fixes
+
+* For Issues you can use [GitHub's Issue Tracker](https://github.com/axelitus/fuel-pkg-history/issues)
+* If you have suggestions you can send an email to dev [at] axelitus [dot] mx
+* If you have any fixes or new features you'd like to share please send them as Pull Request on [GitHub] (https://github.com/axelitus/fuel-pkg-history/pulls)
 
 ## Installation
 
@@ -21,6 +37,7 @@ The package installation is very easy. You can choose one of two methods describ
 ### Manual
 
 Just download the source code located at [axelitus' FuelPHP History package at GitHub](https://github.com/axelitus/fuel-pkg-history) and place it in a folder named history inside the packages folder in FuelPHP.
+
 Alternatively you can use git to clone the repository directly (this will make your life easier when updating the package):
 
 ```
@@ -30,25 +47,42 @@ git clone git@github.com:axelitus/fuel-pkg-history history
 ### Using Oil
 
 This package follows standard installation rules, which can be found within the [FuelPHP Documentation for Packages] (http://fuelphp.com/docs/general/packages.html)
-First you need to add axelitus' GitHub location to the package configuration file (package.php) located in fuel/core/config/ folder (you are encourage to copy this file to your app/config folder and edit that file instead):
+First you need to add axelitus' GitHub location to the package configuration file (package.php) located in fuel/core/config/ folder (you are encouraged to copy this file to your app/config folder and edit that file instead):
 
 ```
 // config/package.php
 return array(
     'sources' => array(
         'github.com/fuel-packages',
-        'github.com/axelitus', // ADD THIS LINE
+        'github.com/axelitus',			// ADD THIS LINE
     ),
 );
 ```
 
-Then just run the following command from the terminal while in your applications' base directory
+Then just run the following command on the terminal from where the oil command is (this command uses the changes proposed in the pull request [45](https://github.com/fuel/oil/pull/45) in the [GitHub Oil Repo](https://github.com/fuel/oil). If you are not using this changes, you can ommit the folder=history part and please make sure to rename the newly created 'pkg-history' folder to 'history' under the packages folder):
 
 ```
-oil package install pkg-history
+php oil package install pkg-history folder=history
 ```
 
 ## Usage
+
+The first thing you should do is load the package. This can be achieved manually by calling:
+
+```
+\Fuel::add_package('history');
+```
+
+To load it automatically you should edit your App's config file (config.php). Look for the 'always_load' key and under 'packages' set an entry with the 'history' string. It should look similar to this:
+
+```
+...
+'always_load'	=> array(
+	'packages'	=> array(
+		'history'
+	),
+...
+```
 
 ### Exending the History Controller
 
@@ -285,11 +319,40 @@ History::save();
 
 ##### Events
 
+To register callbacks for the events you can do so using one of the following three alternatives:
+
+* Non-static methods
+	- For non-static methods use the instance of the object you want it's method to be called:
+
+	```
+	\Event::register(History::EVENT, array($object_instance, 'callback'));
+	```
+
+* Static methods
+	- For static methods you can use either a string:
+	```
+	\Event::register(History::EVENT, 'Classname::method');
+	```
+	- Or you can use an array:
+	```
+	\Event::register(History::EVENT, array('Classname', 'method');
+	```
+
+Please understand the normal flow of the History class and when the Events are triggered as you may find yourself struggling while 'missing' some events. This can happen while extending the Controller_History as the class loads entries, recalculates pointers and pushes an entry automatically in the before() method (thus raising EVENT_ENTRIES_LOADED, EVENT_POINTERS_RECALCULATED, EVENT_ENTRY_BEFORE_PUSH, EVENT_ENTRY_PUSHED [if not ommited because of refresh] in that order from within that method) and saves entries in the after() method automatically (thus raising the EVENT_ENTRIES_SAVED in that order from within that method).
+
 The History class triggers the following events:
 
 ###### EVENT_ENTRY_BEFORE_PUSH
 
 This event fires up right before an entry is pushed into the stack. The data that is sent to the callback is the History_Entry that will be pushed into the stack. If you need to cancel the push you should return true (cancel = true) from the callback.
+
+###### EVENT_ENTRY_PUSH_OMMITED
+
+This event fires up when an entry's push is ommited because a refresh is detected. The data that is sent to the callback is the History_Entry that should have been pushed into the stack. You should *NEVER* try to push an entry from within a callback for this event as this may create a loop.
+
+###### EVENT_ENTRY_PUSH_CANCELED
+
+This event fires up when an entry's push is canceled in the EVENT_ENTRY_BEFORE_PUSH. The data that is sent to the callback is the History_Entry that should have been pushed into the stack. You should *NEVER* try to push an entry from within a callback for this event as this may create a loop, you should better debug why is the push being cancelled.
 
 ###### EVENT_ENTRY_PUSHED
 
@@ -298,6 +361,10 @@ This event fires up right after an entry is pushed to the stack. The data that i
 ###### EVENT_ENTRY_BEFORE_POP
 
 This event fires up right before an entry is popped from the stack. The data that is sent to the callback is the 'current' History_Entry (that's the one that will be popped from the stack). If you need to cancel the pop you should return true (cancel = true) from the callback.
+
+###### EVENT_ENTRY_POP_CANCELED
+
+This event fires up when an entry's pop is canceled in the EVENT_ENTRY_BEFORE_POP. The data that is sent to the callback is the 'current' History_Entry (that's the one that will be popped from the stack). You should *NEVER* try to pop an entry from within a callback for this event as this may create a loop, you should better debug why is the pop being cancelled.
 
 ###### EVENT_ENTRY_POPPED
 
@@ -314,6 +381,10 @@ This event fires up right after the entries were saved using the specified drive
 ###### EVENT_ENTRIES_BEFORE_PRUNE
 
 This event fires up right before the entries stack is pruned. The data that is sent to the callback is an array containig the 'limit' of entries and the 'offset' from where it will be pruned. If you need to cancel the prune you should return true (cancel = true) from the callback.
+
+###### EVENT_ENTRY_PRUNE_CANCELED
+
+This event fires up when a stack prune is cancelled in the EVENT_ENTRY_BEFORE_PRUNE. The data that is sent to the callback is an array containig the 'limit' of entries and the 'offset' from where it should have been pruned. You should *NEVER* try to prune from within a callback for this event as this may create a loop, you should better debug why is the prune being cancelled.
 
 ###### EVENT_ENTRIES_PRUNED
 
