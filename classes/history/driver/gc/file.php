@@ -33,6 +33,7 @@ class History_Driver_GC_File extends History_Driver_GC
 		
 		$path = $this->_parent->get_path();
 		$prefix = $this->_parent->get_prefix();
+		$extension = $this->_parent->get_extension();
 		if ($handle = opendir($path))
 		{
 			// TODO: When Fuel PHP v1.1 is released get rid of this fallback
@@ -48,7 +49,7 @@ class History_Driver_GC_File extends History_Driver_GC
 			while (($file = readdir($handle)) !== false)
 			{
 				$fullpath = $path . DS . $file;
-				if(filetype($fullpath) == 'file' && strpos($file, $prefix) === 0 && substr($file, -strlen($ext)) === $ext &&  filemtime($fullpath) < $expire)
+				if(filetype($fullpath) == 'file' && strpos($file, $prefix) === 0 && substr($file, -strlen($extension)) === $extension &&  filemtime($fullpath) < $expire)
 				{
 					if(@unlink($fullpath))
 					{
