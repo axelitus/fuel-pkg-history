@@ -53,13 +53,14 @@ class History_Entry implements \Serializable
 		{
 			$this->_data = \Arr::merge(static::$_data_defaults, $data);
 		}
-		
+
 		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
-		if(\Fuel::VERSION >= 1.1)
+		if (\Fuel::VERSION >= 1.1)
 		{
 			(is_null($this->_data['datetime']) or !($this->_data['datetime'] instanceof \Fuel\Core\Date)) and $this->_data['datetime'] = \Date::forge();
 		}
-		else {
+		else
+		{
 			(is_null($this->_data['datetime']) or !($this->_data['datetime'] instanceof \Fuel\Core\Date)) and $this->_data['datetime'] = \Date::factory();
 		}
 	}
@@ -125,7 +126,7 @@ class History_Entry implements \Serializable
 	public function __get($key)
 	{
 		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
-		if(\Fuel::VERSION >= 1.1)
+		if (\Fuel::VERSION >= 1.1)
 		{
 			if (($value = \Arr::get($this->_data, $key, null)) === null)
 			{
@@ -151,6 +152,32 @@ class History_Entry implements \Serializable
 	public function __set($key, $value)
 	{
 		\Arr::replace_item($this->_data, $key, $value);
+	}
+
+	/**
+	 * Gets the History entry's controller part if exists. If using Routes this won't
+	 * match the really executed controller as the entry records only uri Requests.
+	 *
+	 * @return string The name of the controller part from the entry
+	 */
+	public function get_controller()
+	{
+		$segments = \Arr::get($this->_data, 'segments', array());
+		
+		return (isset($segments[0])? $segments[0] : '');
+	}
+
+	/**
+	 * Gets the History entry's method part if exists. If using Routes this won't
+	 * match the really executed method as the entry records only uri Requests.
+	 *
+	 * @return string The name of the method part from the entry
+	 */
+	public function get_method()
+	{
+		$segments = \Arr::get($this->_data, 'segments', array());
+		
+		return (isset($segments[1])? $segments[1] : '');
 	}
 
 	/**
