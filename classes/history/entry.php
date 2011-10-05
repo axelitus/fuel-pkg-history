@@ -187,7 +187,15 @@ class History_Entry implements \Serializable
 	 */
 	public function get_segment($segment = 0)
 	{
-		$segments = \Arr::get($this->_data, 'segments', array());
+		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
+		if (\Fuel::VERSION >= 1.1)
+		{
+			$segments = \Arr::get($this->_data, 'segments', array());
+		}
+		else
+		{
+			$segments = \Arr::element($this->_data, 'segments', array());
+		}
 
 		return (isset($segments[$segment]) ? $segments[$segment] : null);
 	}
