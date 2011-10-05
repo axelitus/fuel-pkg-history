@@ -59,7 +59,7 @@ return array(
 );
 ```
 
-Then just run the following command on the terminal from where the oil command is (this command uses the changes proposed in the pull request [45](https://github.com/fuel/oil/pull/45) in the [GitHub Oil Repo](https://github.com/fuel/oil). If you are not using this changes, you can ommit the folder=history part and please make sure to rename the newly created 'pkg-history' folder to 'history' under the packages folder):
+Then just run the following command on the terminal from where the oil command is (this command uses the changes proposed in the pull request [45](https://github.com/fuel/oil/pull/45) in the [GitHub Oil Repo](https://github.com/fuel/oil). If you are not using this changes, you can ommit the 'folder=history' part from the following command and please make sure to rename the newly created 'pkg-history' folder to 'history' under the packages folder or the package won't work):
 
 ```
 php oil package install pkg-history folder=history
@@ -75,7 +75,7 @@ The first thing you should do is load the package. This can be achieved manually
 \Fuel::add_package('history');
 ```
 
-To load it automatically you should edit your App's config file (config.php). Look for the 'always_load' key and under 'packages' set an entry with the 'history' string. It should look similar to this:
+To load it automatically you should edit your App's config file (config.php). Look for the 'always_load' key and under 'packages' and set an entry with the 'history' string. It should look similar to this:
 
 ```
 ...
@@ -88,7 +88,7 @@ To load it automatically you should edit your App's config file (config.php). Lo
 
 ### Exending the History Controller
 
-The easiest way to start using this package is to extend the Controller_History class. This will allow the extended Controller to automatically generate the History stack and save it between requests.
+The easiest way to start using this package is to extend the Controller_History class. This will allow the extended Controller to generate the History stack (load) and save it automatically between requests.
 
 To extend the controller just extend the base class like:
 
@@ -98,14 +98,15 @@ class MyNewController extends Controller_History
 }
 ```
 
-The Controller_History class uses the before() and after() controller functions, so if you overload this in your derived controller it won't work unless you use the parent::before() and parent::after() statements inside your functions.
-Check the code in the base class and modify it as needed if you don't want to use the parent::before() and parent::after() calls.
+The Controller_History class uses a modified version of the before() and after() controller methods, so if you overload this methods inside your extended controller it won't work automatically unless you call the parent::before() and parent::after() statements inside your own methods.
+
+Be sure to check the code in the base class and modify it as needed if you don't want to use the parent::before() and parent::after() calls or you need to do soemthing 'special'.
 
 ### Configuration
 
 The configuration is done using the file history.php in the config directory (you are encourage to copy this file to your app/config folder and edit that file instead).
 
-Config example:
+An example of the contents of a history.php config file:
 
 ```
 return array(
@@ -132,6 +133,8 @@ return array(
 );
 ```
 
+The options in the config array do the following, most of them (if not all) are optional and will default to something:
+
 #### history_id (type: string, default: 'history')
 
 The history_id configuration value is the key to be used in the Session to store driver data.
@@ -140,27 +143,76 @@ The history_id configuration value is the key to be used in the Session to store
 
 The driver configuration value is the driver to be used and it's options.
 
+Example:
+
+```
+'driver' => array(
+	'name' => 'file',
+	'secure' => true,
+	'hash_length' => 8,
+	'[driver_specifics]' => array(
+		...
+	),
+	'gc' => array(
+		'active' => true,
+		'threshold' => 900,
+		'probability' => 5
+	)
+)
+```
+
 ##### name (type: string, default: 'file')
 
 The driver to be used. It can be one of the following: file|database|session
 
-##### path (type: string, default: '')
-
-Using file driver: The path to where the files will be saved. If the path does not exist or is not specified, the default sys temp path will be used.
-
-Using database driver: The table name to where the files will be saved. If the table does not exist, an Exception will be thrown.
-
-Using session driver: This will be ignored.
-
 ##### secure (type: bool, default: true)
 
-Using file and database driver: The stored data will be encoded using the \Crypt class.
+Whether to encode the entries (using Fuel\Crypt class) or not.
 
-Using session driver: This will be ignored. The session automatically encodes data unless otherwise stated in the Session's config.
+This setting will be ignored when using the Session driver as the \Session class encodes encodes all data automatically unless otherwise stated in the own Session's config.
+
+##### hash_length (type: int, default: 8)
+
+The length of the hash to be used to identify the stack (used for drivers to store the data and be able retrieve it later).
+
+##### gc (type: array)
+
+The Garbage Collector options for the specified driver (if the driver has one).
+
+Example:
+
+```
+'gc' => array(
+	'active' => true,
+	'threshold' => 900,
+	'probability' => 5
+)
+```
+
+###### active (type: bool, default: true)
+
+Whether to use Garbage Collection or not. You should leave this on to prevent data flooding and even collisions. When set to false the Garbage Collecto won't even be instantiated.
+
+###### threshold (type: int, default: 900)
+
+Seconds that will last the unmodified items (files or records depending on driver) before the garbage collector deletes them (The default of 900 seconds equals 15 minutes).
+
+###### probability (type: int, default: 5)
+
+The probability percentage (between 0 and 100) for garbage collection. (Setting this to 0 will have the same effect as to set the active option to false, but the GC will be instantiated).
 
 #### entries (type: array)
 
 The entries configuration value sets the options to how the history stack is managed.
+
+Example:
+
+```
+'entries' => array(
+	'limit' => 15,
+	'prevent_refresh' => true
+)
+```
 
 ##### limit (type: int, default: 15 [use 0 for unlimited])
 
@@ -179,7 +231,7 @@ This section holds some driver specific configurations and notes. To know what e
 The file driver uses a specific config key named 'file' with the following options:
 
 ```
-'database' => array(
+'file' => array(
 	'path' => 'path_to_store_files',
 	'prefix' => 'perfix_to_use_for_files',
 	'extension' => 'extension_to_use_for_files',
@@ -221,7 +273,7 @@ The database driver uses a specific config key named 'database' with the followi
 
 #### Session driver
 
-The Session driver uses the \Session core class to store the entries stack. This driver is intended to be used with care as it relies on the capabilities of the underlying class. This means that it dependes on the chosen driver to handle the sessions across Fuel. You should be aware of how the driver handles data and what it's limits are.
+The Session driver uses the \Session core class to store the entries stack. This driver is intended to be used with care as it relies on the capabilities of the underlying class. This means that it dependes on the chosen driver to handle the sessions across Fuel. You should be aware of how the driver handles data and what it's limits are. At the moment this driver does not have a specifics config key, but the key 'session' is reserved for the future development.
 
 WARNING!:
 
@@ -229,7 +281,7 @@ WARNING!:
 
 ### Methods
 
-The useful methods are listed in the following sections.
+The useful methods (and the ones that you will be using the most (if not the only ones) while using the package) are listed in the following sections.
 
 #### History class
 
