@@ -102,10 +102,10 @@ abstract class History_Driver
 			if (class_exists($gc))
 			{
 				$this->_gc = $gc::forge($this, $config);
-				
+
 				// Log Info
 				\Log::info(get_called_class() . "::_load_gc() - The GC collector for the specified driver was loaded.");
-				
+
 				$this->_gc->start();
 			}
 		}
@@ -133,6 +133,134 @@ abstract class History_Driver
 		$hash = substr(md5($rand), 0, $this->_config['hash_length']);
 
 		return $hash;
+	}
+
+	/**
+	 * Compresses the payload to be stored if configured to do so using the specified
+	 * format and level
+	 *
+	 * @return string the compressed payload using the configured options or the unmodified payload string
+	 */
+	protected function _compress($payload)
+	{
+		$return = $payload;
+
+		if ($this->_config['compression']['active'] === true)
+		{
+			try
+			{
+				switch(strtoupper($this->_config['compression']['format']))
+				{
+					case 'DEFLATE':
+						$return = @gzdeflate($return, $this->_config['compression']['level']);
+						break;
+					/*
+					 * Not yet supported as there is no gzdecode() PHP method as of yet
+					case 'GZIP':
+						$return = gzencode($return, $this->_config['compression']['level']);
+						break;
+					 * */
+					default:
+					// This includes the ZLIB option
+						$return = @gzcompress($return, $this->_config['compression']['level']);
+						break;
+				}
+			}
+			catch(Exception $e)
+			{
+				\Log::error($e->getMessage());
+			}
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Unompresses the given payload if configured to do so using the specified
+	 * format and level
+	 *
+	 * @return string the uncompressed payload using the configured options or the unmodified payload string
+	 */
+	protected function _uncompress($payload)
+	{
+		$return = $payload;
+
+		if ($this->_config['compression']['active'] === true)
+		{
+			try
+			{
+				switch(strtoupper($this->_config['compression']['format']))
+				{
+					case 'DEFLATE':
+						$return = @gzinflate($return);
+						break;
+					/*
+					 * Not yet supported as there is no gzdecode() PHP method as of yet
+					case 'GZIP':
+						$return = gzdecode($return);
+						break;
+					 * */
+					default:
+					// This includes the ZLIB option
+						$return = @gzuncompress($return);
+						break;
+				}
+			}
+			catch(Exception $e)
+			{
+				\Log::error($e->getMessage());
+			}
+		}
+
+		return $return;
+	}
+	
+	/**
+	 * Encodes the given payload if configured to so
+	 * 
+	 * @return string The encoded payload using the \Crypt class or the unmodified payload string 
+	 */
+	protected function _encode($payload)
+	{
+		$return = $payload;
+		
+		if($this->_config['secure'])
+		{
+			try
+			{
+				$return = \Crypt::encode($return);
+			}
+			catch(Exception $e)
+			{
+				\Log::error($e->getMessage());
+			}
+		}
+		
+		return $return;
+	}
+	
+	/**
+	 * Decodes the given payload if configured to so
+	 * 
+	 * @return string The decoded payload using the \Crypt class or the unmodified payload string
+	 */
+	protected function _decode($payload)
+	{
+		$return = $payload;
+		
+		if($this->_config['secure'])
+		{
+			try
+			{
+				$return = \Crypt::decode($return);
+			}
+			catch(Exception $e)
+			{
+				\Log::error($e->getMessage());
+			}
+		}
+		
+		return $return;
 	}
 
 	/**

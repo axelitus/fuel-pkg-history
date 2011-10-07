@@ -18,6 +18,15 @@ return array(
 	'driver' => array(
 		// The name of the driver to be used (optional, default = 'file'). Options: file|database|session
 		'name' => 'file',
+		// The compression options to be used
+		'compression' => array(
+			// Whether to compress the data before encoding or not. It uses gzcompress (optional, default = true)
+			'active' => true,
+			// The format of the compression to be used (optional, default = 'zlib'). Options: zlib|deflate
+			'format' => 'zlib',
+			// The level of compression to use (optional, default = 5)
+			'level' => 9
+		),
 		// Whether to encode the entries (using Fuel\Crypt class) or not (optional, default = true)
 		'secure' => true,
 		// The length of the hash to be used to identify the stack

@@ -27,7 +27,7 @@ class History
 	/**
 	 * @var string The version of the History pacakge
 	 */
-	const VERSION = '1.0.2';
+	const VERSION = '1.0.3';
 
 	/**
 	 * @var array Contains the browser history for current browser session
@@ -67,6 +67,11 @@ class History
 		'history_id' => 'history',
 		'driver' => array(
 			'name' => 'file',
+			'compression' => array(
+				'active' => true,
+				'format' => 'zlib',
+				'level' => 5
+			),
 			'secure' => false,
 			'hash_length' => 8,
 			'file' => array(
@@ -165,8 +170,6 @@ class History
 		// Push the new entry
 		static::$_entries[] = $entry;
 		static::$_previous = static::$_current++;
-
-		var_dump(static::$_previous, static::$_current);
 
 		// Prune the array if needed
 		static::_prune();
