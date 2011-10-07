@@ -17,7 +17,7 @@ return array(
 	// Contains the options for the driver.
 	'driver' => array(
 		// The name of the driver to be used (optional, default = 'file'). Options: file|database|session.
-		'name' => 'session',
+		'name' => 'file',
 		// The compression options to be used.
 		'compression' => array(
 			// Whether to compress the data before encoding or not (optional, default = true).
