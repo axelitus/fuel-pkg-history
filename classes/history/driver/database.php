@@ -71,12 +71,12 @@ class History_Driver_Database extends History_Driver
 				\DBUtil::create_table($this->_table, $this->_table_fields, array('hash'));
 				if(!static::_table_exists($this->_table))
 				{
-					throw new \Fuel_Exception("Database table could not be created.");
+					throw new History_Driver_Database_Exception("Database table could not be created.");
 				}
 			}
 			else
 			{
-				throw new \Fuel_Exception("Database table does not exist.");
+				throw new History_Driver_Database_Exception("Database table does not exist.");
 			}
 		}
 
