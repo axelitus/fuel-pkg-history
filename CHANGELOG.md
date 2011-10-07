@@ -2,6 +2,20 @@
 
 Latest version: 1.0.2
 
+## v1.0.3
+
+Description: This is a maintenance/feature patch that centralizes some repeated code execution and introduces compression feature.
+
+Released: 07/10/2011
+
+### Fixes
+
+* Centralized some repeated code execution.
+
+### Features
+
+* Added compression feature.
+
 ## v1.0.2
 
 Description: This is a maintenance/feature patch that fixes some issues and introduces small features.
