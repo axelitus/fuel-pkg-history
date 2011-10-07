@@ -1,6 +1,25 @@
 # Fuel History package changelog
 
-Latest version: 1.0.1
+Latest version: 1.0.2
+
+## v1.0.2
+
+Description: This is a maintenance/feature patch that fixes some issues and introduces small features.
+
+Released: 07/10/2011
+
+### Fixes
+
+* Fixed a bug where previous() returned the same as current().
+* Got rid of some unnecesarry code.
+* Changed Exceptions that are thrown by classes.
+* Added the missing classes (History Exceptions) to the bootstrap file.
+
+### Features
+
+* Added the get_segment() method.
+* Added referrer and post (hash and data) to the History_Entry class.
+* Added the get_Entry() method.
 
 ## v1.0.1
 
@@ -14,4 +33,4 @@ Released: 05/10/2011
 
 ### Features
 
-* Added a VERSION constant in the History class
+* Added a VERSION constant in the History class.
