@@ -14,7 +14,7 @@
 return array(
 	// default ID for history tag in Session (optional, default = 'history')
 	'history_id' => 'history',
-	// The driver to be used (optional, default File Driver config)
+	// Contains the options for the driver
 	'driver' => array(
 		// The name of the driver to be used (optional, default = 'file'). Options: file|database|session
 		'name' => 'file',
@@ -56,7 +56,9 @@ return array(
 		// How many entries should we collect? (optional, default = 15, use 0 for unlimited)
 		'limit' => 15,
 		// Do not allow duplicate entries by refresh (optional, default = true)
-		'prevent_refresh' => true
+		'prevent_refresh' => true,
+		// Whether to save the full post data in the entry or just the post data hash (optional, default = true)
+		'use_full_post' => false
 	)
 );
 // @formatter:on

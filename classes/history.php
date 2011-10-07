@@ -27,7 +27,7 @@ class History
 	/**
 	 * @var string The version of the History pacakge
 	 */
-	const VERSION = '1.0.1';
+	const VERSION = '1.0.2';
 
 	/**
 	 * @var array Contains the browser history for current browser session
@@ -88,7 +88,8 @@ class History
 		),
 		'entries' => array(
 			'limit' => 15,
-			'prevent_refresh' => true
+			'prevent_refresh' => true,
+			'use_full_post' => false
 		)
 	);
 	// @formatter:on
@@ -121,14 +122,23 @@ class History
 			{
 				static::$_driver = $driver::forge(static::$_config['history_id'], static::$_config['driver']);
 
-				// Log Info
-				\Log::info(get_called_class() . "::_init() - The specified driver " . static::$_config['driver']['name'] . " ({$driver}) was loaded. ");
+				// Verify if a driver has been loaded
+				if (is_object(static::$_driver) && static::$_driver instanceof History_Driver)
+				{
+					// Log Info
+					\Log::info(get_called_class() . "::_init() - The specified driver " . static::$_config['driver']['name'] . " ({$driver}) was loaded. ");
 
-				// Load previous entries using the driver
-				static::load();
+					// Load previous entries using the driver
+					static::load();
 
-				// Initialization completed
-				static::$_initialized = true;
+					// Initialization completed
+					static::$_initialized = true;
+				}
+				else
+				{
+					// If the driver hasn't been loaded we cannot continue!
+					throw new History_Exception("The specified driver " . static::$_config['driver']['name'] . " ({$driver}) could not be loaded!");
+				}
 			}
 			else
 			{
@@ -155,7 +165,7 @@ class History
 		// Push the new entry
 		static::$_entries[] = $entry;
 		static::$_previous = static::$_current++;
-		
+
 		var_dump(static::$_previous, static::$_current);
 
 		// Prune the array if needed
@@ -167,7 +177,7 @@ class History
 	 */
 	public static function push_request(\Fuel\Core\Request $request)
 	{
-		static::push(History_Entry::from_request($request));
+		static::push(History_Entry::from_request($request, static::$_config['entries']['use_full_post']));
 	}
 
 	/**
@@ -188,32 +198,6 @@ class History
 		}
 
 		return $return;
-	}
-
-	/**
-	 * Triggers the event in case the option is set to trigger them
-	 */
-	protected static function _trigger_event($event, $data = '', $return_type = 'string')
-	{
-		$return = \Event::trigger($event, $data, $return_type);
-
-		return $return;
-	}
-
-	/**
-	 * Verifies if the action should be cancelled because of a callback response
-	 */
-	protected static function _cancel_action(array $calls)
-	{
-		foreach ($calls as $call)
-		{
-			if ($call === true)
-			{
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**
@@ -271,6 +255,22 @@ class History
 	}
 
 	/**
+	 * Gets the entry at the specified index. Return null if index is out of bounds
+	 *
+	 * @return History_Entry|null
+	 */
+	public static function get_entry($index)
+	{
+		$return = null;
+		if ($index >= 0 && $index < count(static::$_entries))
+		{
+			$return = static::$_entries[$index];
+		}
+
+		return $return;
+	}
+
+	/**
 	 * Gets the history entries count
 	 *
 	 * @return int count of history entries
@@ -287,7 +287,7 @@ class History
 	 */
 	public static function current()
 	{
-		return (static::$_current >= 0) ? static::$_entries[static::$_current] : null;
+		return static::get_entry(static::$_current);
 	}
 
 	/**
@@ -297,7 +297,7 @@ class History
 	 */
 	public static function previous()
 	{
-		return (static::$_previous >= 0) ? static::$_entries[static::$_previous] : null;
+		return static::get_entry(static::$_previous);
 	}
 
 	/**
@@ -309,6 +309,7 @@ class History
 	{
 		$return = false;
 
+		// Verify if a driver has been loaded
 		if (is_object(static::$_driver) && static::$_driver instanceof History_Driver)
 		{
 			// Load the driver. This will fill the entries array
@@ -333,18 +334,22 @@ class History
 	 */
 	public static function save()
 	{
-		// Use the driver to store the history information.
-		$return = static::$_driver->save(static::$_entries);
+		// Verify if a driver has been loaded
+		if (is_object(static::$_driver) && static::$_driver instanceof History_Driver)
+		{
+			// Use the driver to store the history information.
+			$return = static::$_driver->save(static::$_entries);
 
-		if ($return)
-		{
-			// Log Info
-			\Log::info(get_called_class() . "::save() - The entries were saved using the specified driver.");
-		}
-		else
-		{
-			// Log Info
-			\Log::error(get_called_class() . "::save() - The entries could not be saved using the specified driver.");
+			if ($return)
+			{
+				// Log Info
+				\Log::info(get_called_class() . "::save() - The entries were saved using the specified driver.");
+			}
+			else
+			{
+				// Log Info
+				\Log::error(get_called_class() . "::save() - The entries could not be saved using the specified driver.");
+			}
 		}
 
 		return $return;

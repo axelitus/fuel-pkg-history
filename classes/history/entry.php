@@ -35,15 +35,20 @@ class History_Entry implements \Serializable
 	 */
 	protected static $_data_defaults = array(
 		'uri' => '',
+		'referer' => '',
 		'segments' => array(),
-		'datetime' => null
+		'datetime' => null,
+		'post' => array(
+			'hash' => '',
+			'data' => array()
+		)
 	);
 	// @formatter:on
 
 	/**
 	 * Prevent direct instantiation
 	 */
-	private function __construct(array $data = array())
+	private function __construct(array $data = array(), $use_full_post = false)
 	{
 		if (method_exists('\Arr', 'merge_replace'))
 		{
@@ -63,6 +68,13 @@ class History_Entry implements \Serializable
 		{
 			(is_null($this->_data['datetime']) or !($this->_data['datetime'] instanceof \Fuel\Core\Date)) and $this->_data['datetime'] = \Date::factory();
 		}
+		
+		// Create the post hash to determine if it's the same uri but different post data
+		if($use_full_post)
+		{
+			$this->_data['post']['data'] = \Input::post();
+		}
+		$this->_data['post']['hash'] = sha1(json_encode(\Input::post()));
 	}
 
 	/**
@@ -70,7 +82,7 @@ class History_Entry implements \Serializable
 	 *
 	 * @return History_Entry
 	 */
-	public static function forge($data = '')
+	public static function forge($data = '', $use_full_post = false)
 	{
 		$options = array();
 
@@ -79,11 +91,13 @@ class History_Entry implements \Serializable
 			$uri = new \Uri($data);
 			$options['uri'] = $uri->uri;
 			$options['segments'] = $uri->segments;
+			$options['referer'] = \Input::referrer(static::$_data_defaults['referer']);
 		}
 		else if (is_object($data) && $data instanceof \Uri)
 		{
 			$options['uri'] = $data->uri;
 			$options['segments'] = $data->segments;
+			$options['referer'] = \Input::referrer(static::$_data_defaults['referer']);
 		}
 		else if (is_array($data))
 		{
@@ -93,13 +107,18 @@ class History_Entry implements \Serializable
 				$uri = new \Uri($options['uri']);
 				$options['segments'] = $uri->segments;
 			}
+
+			if(!isset($_SERVER['HTTP_REFERER']))
+			{
+				$options['referer'] = \Input::referrer(static::$_data_defaults['referer']);
+			}
 		}
 		else
 		{
 			throw new History_Entry_Exception("Cannot forge a History_Entry object from the given parameter \$data.");
 		}
 
-		return new static($options);
+		return new static($options, $use_full_post);
 	}
 
 	/**
@@ -107,13 +126,13 @@ class History_Entry implements \Serializable
 	 *
 	 * @return History_Entry
 	 */
-	public static function from_request(\Fuel\Core\Request $request)
+	public static function from_request(\Fuel\Core\Request $request, $use_full_post = false)
 	{
 		$data = array();
 		$data['uri'] = $request->uri->get();
 		$data['segments'] = $request->uri->get_segments();
 
-		$return = static::forge($data);
+		$return = static::forge($data, $use_full_post);
 
 		return $return;
 	}
@@ -128,6 +147,7 @@ class History_Entry implements \Serializable
 		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
 		if (\Fuel::VERSION >= 1.1)
 		{
+			
 			if (($value = \Arr::get($this->_data, $key, null)) === null)
 			{
 				throw new History_Entry_Exception("The property '{$key}' does not exist.");
@@ -229,10 +249,14 @@ class History_Entry implements \Serializable
 	 *
 	 * @return bool
 	 */
-	public function equals($compare)
+	public function equals($compare, $use_post_hash = true)
 	{
 		$uri = '';
 		$segments = array();
+		$post = array(
+			'hash' => '',
+			'data' => array()
+		);
 
 		// Define the comparison properties
 		if (is_string($compare))
@@ -243,15 +267,27 @@ class History_Entry implements \Serializable
 		}
 		elseif (is_object($compare))
 		{
-			if ($compare instanceof \Uri || $compare instanceof History_Entry)
+			if ($compare instanceof \Uri)
 			{
 				$uri = $compare->uri;
 				$segments = $compare->segments;
+			}
+			elseif($compare instanceof History_Entry)
+			{
+				$uri = $compare->uri;
+				$segments = $compare->segments;
+				$post_hash = $compare->post['hash'];
 			}
 		}
 
 		// Do the comparison
 		if ($this->uri != $uri || $this->segments != $segments)
+		{
+			return false;
+		}
+		
+		// Include post hash in the comparison
+		if($use_post_hash &&  $this->post['hash'] != $post_hash)
 		{
 			return false;
 		}
