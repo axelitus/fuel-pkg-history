@@ -68,9 +68,9 @@ class History_Entry implements \Serializable
 		{
 			(is_null($this->_data['datetime']) or !($this->_data['datetime'] instanceof \Fuel\Core\Date)) and $this->_data['datetime'] = \Date::factory();
 		}
-		
+
 		// Create the post hash to determine if it's the same uri but different post data
-		if($use_full_post)
+		if ($use_full_post)
 		{
 			$this->_data['post']['data'] = \Input::post();
 		}
@@ -108,7 +108,7 @@ class History_Entry implements \Serializable
 				$options['segments'] = $uri->segments;
 			}
 
-			if(!isset($_SERVER['HTTP_REFERER']))
+			if (!isset($_SERVER['HTTP_REFERER']))
 			{
 				$options['referer'] = \Input::referrer(static::$_data_defaults['referer']);
 			}
@@ -147,7 +147,7 @@ class History_Entry implements \Serializable
 		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
 		if (\Fuel::VERSION >= 1.1)
 		{
-			
+
 			if (($value = \Arr::get($this->_data, $key, null)) === null)
 			{
 				throw new History_Entry_Exception("The property '{$key}' does not exist.");
@@ -180,7 +180,7 @@ class History_Entry implements \Serializable
 	 * the really executed controller as the History class records only the uri
 	 * Requests.
 	 *
-	 * @return string|null The name of the controller part from the entry
+	 * @return null|string The name of the controller part from the entry
 	 */
 	public function get_controller()
 	{
@@ -193,7 +193,7 @@ class History_Entry implements \Serializable
 	 * using Routes this won't match the really executed method in the controller as
 	 * the History class records only the uri Requests.
 	 *
-	 * @return string|null The name of the method part from the entry
+	 * @return null|string The name of the method part from the entry
 	 */
 	public function get_method()
 	{
@@ -201,11 +201,12 @@ class History_Entry implements \Serializable
 	}
 
 	/**
-	 * Gets the segment specified by given param.
+	 * Gets the zero-based uri's segment specified by given index. Returns null if
+	 * index is out of bounds.
 	 *
-	 * @return string|null The uri segment or null if it does not exists
+	 * @return null|string The uri segment or null if it does not exists
 	 */
-	public function get_segment($segment = 0)
+	public function get_segment($index = 0)
 	{
 		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
 		if (\Fuel::VERSION >= 1.1)
@@ -217,7 +218,7 @@ class History_Entry implements \Serializable
 			$segments = \Arr::element($this->_data, 'segments', array());
 		}
 
-		return (isset($segments[$segment]) ? $segments[$segment] : null);
+		return (isset($segments[$index]) ? $segments[$index] : null);
 	}
 
 	/**
@@ -245,7 +246,8 @@ class History_Entry implements \Serializable
 	/**
 	 * Compares this History_Entry instance with another and determines if they are
 	 * equal. It can be compared to a string (uri), a \Fuel\Uri object or a
-	 * History_entry object.
+	 * History_entry object. The use_post_hash param indicates whether to use the
+	 * post hash to do the comparison or not.
 	 *
 	 * @return bool
 	 */
@@ -253,10 +255,12 @@ class History_Entry implements \Serializable
 	{
 		$uri = '';
 		$segments = array();
+		// @formatter:off
 		$post = array(
 			'hash' => '',
 			'data' => array()
 		);
+		// @formatter:on
 
 		// Define the comparison properties
 		if (is_string($compare))
@@ -272,7 +276,7 @@ class History_Entry implements \Serializable
 				$uri = $compare->uri;
 				$segments = $compare->segments;
 			}
-			elseif($compare instanceof History_Entry)
+			elseif ($compare instanceof History_Entry)
 			{
 				$uri = $compare->uri;
 				$segments = $compare->segments;
@@ -285,9 +289,9 @@ class History_Entry implements \Serializable
 		{
 			return false;
 		}
-		
+
 		// Include post hash in the comparison
-		if($use_post_hash &&  $this->post['hash'] != $post_hash)
+		if ($use_post_hash && $this->post['hash'] != $post_hash)
 		{
 			return false;
 		}

@@ -181,8 +181,8 @@ class History
 	}
 
 	/**
-	 * Pops the top-most (current) History_Entry from the History
-	 * Note: this will shorten the entries by one element.
+	 * Pops the top-most (current) History_Entry from the History stack.
+	 * Note: this will shorten the entries by one element. Returns null if no entry is found in the stack.
 	 *
 	 * @return null|History_Entry
 	 */
@@ -255,9 +255,9 @@ class History
 	}
 
 	/**
-	 * Gets the entry at the specified index. Return null if index is out of bounds
+	 * Gets the entry at the specified index. Returns null if index is out of bounds
 	 *
-	 * @return History_Entry|null
+	 * @return null|History_Entry
 	 */
 	public static function get_entry($index)
 	{
@@ -281,9 +281,9 @@ class History
 	}
 
 	/**
-	 * Gets the current History entry
+	 * Gets the current History entry. Returns null if the stack is empty.
 	 *
-	 * @return History_Entry
+	 * @return null|History_Entry
 	 */
 	public static function current()
 	{
@@ -291,9 +291,9 @@ class History
 	}
 
 	/**
-	 * Gets the previous History entry
+	 * Gets the previous History entry. Returns null if no previous entry s found in the stack.
 	 *
-	 * @return History_Entry
+	 * @return null|History_Entry
 	 */
 	public static function previous()
 	{

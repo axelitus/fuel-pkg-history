@@ -210,7 +210,8 @@ Example:
 ```
 'entries' => array(
 	'limit' => 15,
-	'prevent_refresh' => true
+	'prevent_refresh' => true,
+	'use_full_post' => false
 )
 ```
 
@@ -293,9 +294,9 @@ Contains a string for the current version of the package.
 
 ##### History::push(History_Entry $entry)
 
-Description: Pushes a History_Entry to the History stack.
-
-Static: Yes
+_Description:_ Pushes a History_Entry to the History stack.
+_Static:_ Yes
+_Return:_ void
 
 ```
 History::push($entry);
@@ -303,9 +304,9 @@ History::push($entry);
 
 ##### History::push_request(\Fuel\Core\Request $request)
 
-Description: Pushes a History_Entry based on a \Fuel\Core\Request to the History stack.
-
-Static: Yes
+_Description:_ Pushes a History_Entry based on a \Fuel\Core\Request to the History stack.
+_Static:_ Yes
+_Return:_ void
 
 ```
 // From a Controller method
@@ -314,9 +315,9 @@ History::push_request($this->request);
 
 ##### History::pop()
 
-Description: Pops the top-most (current) History_Entry from the History.
-
-Static: Yes
+_Description:_ Pops the top-most (current) History_Entry from the History stack. Note: this will shorten the entries by one element. Returns null if no entry is found in the stack.
+_Static:_ Yes
+_Return:_ null|History_Entry
 
 Note: this will shorten the entries by one element.
 
@@ -326,9 +327,9 @@ $entry = History::pop();
 
 ##### History::get_entries()
 
-Description: Gets the entries as an array.
-
-Static: Yes
+_Description:_ Gets the entries as an array.
+_Static:_ Yes
+_Return:_ array of History_Entry objects
 
 ```
 $entries = History::get_entries();
@@ -338,11 +339,25 @@ foreach($entries as $entry)
 }
 ```
 
+##### History::get_entry($index)
+
+_Description:_ Gets the entry at the specified index. Returns null if index is out of bounds.
+_Static:_ Yes
+_Return:_ null|History_Entry
+
+```
+$entry = History::get_entry();
+if($entry !== null)
+{
+	// do something with the entry
+}
+```
+
 ##### History::count()
 
-Description: Gets the history entries count.
-
-Static: Yes
+_Description:_ Gets the history entries count.
+_Static:_ Yes
+_Return:_ int
 
 ```
 $count = History::count();
@@ -354,9 +369,9 @@ if($count > 10)
 
 ##### History::current()
 
-Description: Gets the current History entry.
-
-Static: Yes
+_Description:_ Gets the current History entry. Returns null if the stack is empty.
+_Static:_ Yes
+_Return:_ null|History_Entry
 
 ```
 $entry = History::current();
@@ -367,9 +382,9 @@ echo $entry->get_method();
 
 ##### History::previous()
 
-Description: Gets the previous History entry.
-
-Static: Yes
+_Description:_ Gets the previous History entry. Returns null if no previous entry s found in the stack.
+_Static:_ Yes
+_Return:_ null|History_Entry
 
 ```
 $entry = History::previous();
@@ -380,9 +395,9 @@ echo $entry->get_method();
 
 ##### History::load()
 
-Description: Loads the stored entries to the History stack using the configured driver.
-
-Static: Yes
+_Description:_ Loads the stored entries to the History stack using the configured driver.
+_Static:_ Yes
+_Return:_ bool
 
 ```
 History::load();
@@ -390,9 +405,9 @@ History::load();
 
 ##### History::save()
 
-Description: Saves the History to a store using the configured driver.
-
-Static: Yes
+_Description:_ Saves the History to a store using the configured driver.
+_Static:_ Yes
+_Return:_ bool
 
 ```
 History::save();
@@ -404,9 +419,9 @@ This class represents an entry in the History stack.
 
 ##### History_Entry::forge($data)
 
-Description: Forges a new History_Entry object. It can take an array of data, an \Uri object or an uri string.
-
-Static: Yes
+_Description:_ Forges a new History_Entry object. It can take an array of data, an \Uri object or an uri string.
+_Static:_ Yes
+_Return:_ History_Entry
 
 ```
 $data = array(
@@ -424,9 +439,9 @@ The only required data option is uri. (In fact, instead of an array one could us
 
 ##### History_Entry::from_request(\Fuel\Core\Request $request)
 
-Description: Forges a new History_Entry from a Fuel\Core\Request object.
-
-Static: Yes
+_Description:_ Forges a new History_Entry from a Fuel\Core\Request object.
+_Static:_ Yes
+_Return:_ History_Entry
 
 ```
 // From a Controller method
@@ -435,9 +450,9 @@ $entry = History_Entry::from_request($this->request);
 
 ##### History_Entry->get_controller()
 
-Description: Gets the controller part from the uri in the History_Entry object. Returns an empty string if none is found or the uri is empty. If using Routes this won't match the really executed controller as the History class records only the uri Requests.
-
-Static: No
+_Description:_ Gets the controller part from the uri in the History_Entry object. Returns an empty string if none is found or the uri is empty. If using Routes this won't match the really executed controller as the History class records only the uri Requests.
+_Static:_ No
+_Return:_ null|string
 
 ```
 $entry = History_Entry::forge('welcome/index');
@@ -446,20 +461,32 @@ $controller = $entry->get_controller();
 
 ##### History_Entry->get_method()
 
-Description: Gets the method part from the uri in the History_Entry object. Returns an empty string if none is found or the uri is empty or contains only the controller part. If using Routes this won't match the really executed method in the controller as the History class records only the uri Requests.
-
-Static: No
+_Description:_ Gets the method part from the uri in the History_Entry object. Returns an empty string if none is found or the uri is empty or contains only the controller part. If using Routes this won't match the really executed method in the controller as the History class records only the uri Requests.
+_Static:_ No
+_Return:_ null|string
 
 ```
 $entry = History_Entry::forge('welcome/index');
 $method = $entry->get_method();
 ```
 
+##### History_Entry->get_segment($index)
+
+_Description:_ Gets the zero-based uri's segment specified by given index. Returns null if index is out of bounds.
+_Static:_ No
+_Return:_ null|string
+
+```
+$entry = History_Entry::forge('welcome/display/file/531');
+$type = $entry->get_segment(2);
+$id = $entry->get_segment(3);
+```
+
 ##### History_Entry->serialize()
 
-Description: Serializes the History_Entry object.
-
-Static: No
+_Description:_ Serializes the History_Entry object.
+_Static:_ No
+_Return:_
 
 ```
 $entry = History_Entry::forge('/');
@@ -468,9 +495,9 @@ $serialized = $entry->serialize();
 
 ##### History_Entry->unserialize($str)
 
-Description: Unserializes the entries' string to the History_Entry object. All instance members will be overwritten.
-
-Static: No
+_Description:_ Unserializes the entries' string to the History_Entry object. All instance members will be overwritten.
+_Static:_ No
+_Return:_
 
 ```
 $serialized_string = 'a:1:{i:0;C:21:"History\History_Entry":195:{a:3:{s:3:"uri";s:13:"welcome/index";s:8:"segments";a:2:{i:0;s:7:"welcome";i:1;s:5:"index";}s:8:"datetime";O:14:"Fuel\Core\Date":2:{s:12:" * timestamp";i:1317144358;s:11:" * timezone";s:3:"UTC";}}}}';
@@ -478,12 +505,12 @@ $entry = History_Entry::forge('')->unserialize($serialized_string);
 ```
 Note: the serialized string it's just a close-to-real example
 
-##### History_Entry::equals($compare)
+##### History_Entry::equals($compare, $use_post_hash = true)
 
-Description: Compares this History_Entry instance with another and determines if they are equal.
-It can be compared to a string (uri), a \Fuel\Uri object or a History_entry object.
-
-Static: Yes
+_Description:_ Compares this History_Entry instance with another and determines if they are equal.
+It can be compared to a string (uri), a \Fuel\Uri object or a History_entry object. The use_post_hash param indicates whether to use the post hash to do the comparison or not.
+_Static:_ Yes
+_Return:_
 
 ```
 $uri = new \Uri('/');
@@ -510,14 +537,13 @@ if($entry->equals($uri->uri))
 
 The first version has the basic functionality one would expect. New features will be evaluated and added as soon as possible.
 
-### Features for next Release 1.1
+### Features for next Release 1.0.3
 
 The features for the next version are the ones listed above. (If you have any suggestions feel free to send them using [GitHub](https://github.com/axelitus) or send an email to dev [at] axelitus [dot] mx)
 
 Features:
 
-* Register the User Agent used for the request
-* Register the HTTP Referer for the request
+* Allow compression using different libraries.
 
 ## Special Thanks
 
