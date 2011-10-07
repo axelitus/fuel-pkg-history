@@ -238,6 +238,7 @@ The file driver uses a specific config key named 'file' with the following optio
 	'prefix' => 'perfix_to_use_for_files',
 	'extension' => 'extension_to_use_for_files',
 )
+```
 
 If something fails please verify the following:
 
