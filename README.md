@@ -109,6 +109,7 @@ The configuration is done using the file history.php in the config directory (yo
 An example of the contents of a history.php config file:
 
 ```
+// config/history.php
 return array(
 	'history_id' => 'history',
 	'driver' => array(
@@ -254,14 +255,12 @@ So please make sure that you use a dedicated path for this, or the prefix is uni
 
 The table structure that the Database driver relies on is the following:
 
-```
-CREATE TABLE `history` (
-  `hash` varchar(40) NOT NULL,
-  `content` mediumtext,
-  `updated` datetime NOT NULL,
-  PRIMARY KEY (`hash`)
-) DEFAULT CHARSET=utf8
-```
+	CREATE TABLE `history` (
+	  `hash` varchar(40) NOT NULL,
+	  `content` mediumtext,
+	  `updated` datetime NOT NULL,
+	  PRIMARY KEY (`hash`)
+	) DEFAULT CHARSET=utf8
 
 The database driver uses a specific config key named 'database' with the following options:
 
