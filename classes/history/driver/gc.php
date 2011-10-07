@@ -12,10 +12,6 @@
 
 namespace History;
 
-// @formatter:off
-class History_Driver_GC_Exception extends History_Exception {}
-// @formatter:on
-
 /**
  * History
  *

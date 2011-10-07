@@ -12,10 +12,6 @@
 
 namespace History;
 
-// @formatter:off
-class History_Driver_Exception extends History_Exception {}
-// @formatter:on
-
 /**
  * History
  *
@@ -48,6 +44,11 @@ abstract class History_Driver
 	 */
 	protected static $_config_defaults = array(
 		'name' => 'file',
+		'compression' => array(
+			'active' => true,
+			'format' => 'zlib',
+			'level' => 5
+		),
 		'secure' => true,
 		'hash_length' => 8,
 		'file' => array(
