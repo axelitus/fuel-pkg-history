@@ -74,7 +74,16 @@ class History_Entry implements \Serializable
 		{
 			$this->_data['post']['data'] = \Input::post();
 		}
-		$this->_data['post']['hash'] = sha1(json_encode(\Input::post()));
+		
+		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
+		if (\Fuel::VERSION >= 1.1)
+		{
+			$this->_data['post']['hash'] = sha1(json_encode(\Input::post()));
+		}
+		else
+		{
+			$this->_data['post']['hash'] = sha1(json_encode($_POST));
+		}
 	}
 
 	/**

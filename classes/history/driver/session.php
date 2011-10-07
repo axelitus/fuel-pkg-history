@@ -58,7 +58,16 @@ class History_Driver_Session extends History_Driver
 		$payload = $this->_process_entries_to_payload($entries);
 
 		// Insert the payload into the Session
-		$return = \Session::set($this->_history_id, $payload)->get($this->_history_id, null);
+		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
+		if (\Fuel::VERSION >= 1.1)
+		{
+			$return = \Session::set($this->_history_id, $payload)->get($this->_history_id, null);
+		}
+		else
+		{
+			$return = \Session::set($this->_history_id, $payload);
+			$return = \Session::get($this->_history_id, null);
+		}
 		$return = (($return === null) ? false : true);
 
 		return $return;
