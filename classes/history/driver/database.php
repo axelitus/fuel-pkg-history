@@ -196,15 +196,21 @@ class History_Driver_Database extends History_Driver
 		{
 			$row = $result->as_array();
 			$payload = $row[0]['content'];
-			try
+			
+			if ($payload != '')
 			{
-				$entries = (($this->_config['secure']) ? unserialize(\Crypt::decode($payload)) : unserialize($payload));
+				// Base 64 decode data from DB
+				$payload = base64_decode($payload);
+				
+				// Uncompress the payload if needed
+				$payload = $this->_uncompress($payload);
+				
+				// Decode the payload if needed
+				$payload = $this->_decode($payload);
+				
+				// Unserialize payload and verify if the entries array is indeed an array else default to empty array
+				is_array(($entries = unserialize($payload))) or $entries = array();
 			}
-			catch(Exception $e)
-			{
-				\Log::error($e->getMessage());
-			}
-			$entries = (is_array($entries)) ? $entries : array();
 		}
 
 		return $entries;
@@ -218,8 +224,18 @@ class History_Driver_Database extends History_Driver
 	public function save(array $entries)
 	{
 		$return = false;
-		$payload = (($this->_config['secure']) ? \Crypt::encode(serialize($entries)) : serialize($entries));
 		
+		// Serialize the entries array
+		$payload = serialize($entries);
+		
+		// Encode the payload if needed
+		$payload = $this->_encode($payload);
+		
+		// Compress the payload if needed
+		$payload = $this->_compress($payload);
+		
+		// Base 64 encode data to store in DB
+		$payload = base64_encode($payload);
 		
 		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
 		if(\Fuel::VERSION >= 1.1)

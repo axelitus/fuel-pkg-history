@@ -42,15 +42,14 @@ class History_Driver_Session extends History_Driver
 		$payload = \Session::get($this->_history_id, '');
 		if ($payload != '')
 		{
-			try
-			{
-				$entries = (($this->_config['secure']) ? unserialize(\Crypt::decode($payload)) : unserialize($payload));
-			}
-			catch(Exception $e)
-			{
-				\Log::error($e->getMessage());
-			}
-			$entries = (is_array($entries))? $entries : array();
+			// Uncompress the payload if needed
+			$payload = $this->_uncompress($payload);
+			
+			// Decode the payload if needed
+			$payload = $this->_decode($payload);
+			
+			// Unserialize payload and verify if the entries array is indeed an array else default to empty array
+			is_array(($entries = unserialize($payload))) or $entries = array();
 		}
 
 		return $entries;
@@ -63,9 +62,17 @@ class History_Driver_Session extends History_Driver
 	 */
 	public function save(array $entries)
 	{
-		$payload = (($this->_config['secure']) ? \Crypt::encode(serialize($entries)) : serialize($entries));
-		$return = \Session::set($this->_history_id, $payload)->get($this->_history_id, null);
+		// Serialize the entries array
+		$payload = serialize($entries);
 		
+		// Encode the payload if needed
+		$payload = $this->_encode($payload);
+		
+		// Compress the payload if needed
+		$payload = $this->_compress($payload);
+		
+		// Insert the payload into the Session
+		$return = \Session::set($this->_history_id, $payload)->get($this->_history_id, null);
 		$return = (($return === null)? false : true); 
 		
 		return $return;

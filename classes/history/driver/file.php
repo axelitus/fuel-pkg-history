@@ -169,15 +169,14 @@ class History_Driver_File extends History_Driver
 			$payload = \File::read($this->get_fullpath(), true);
 			if ($payload != '')
 			{
-				try
-				{
-					$entries = (($this->_config['secure']) ? unserialize(\Crypt::decode($payload)) : unserialize($payload));
-				}
-				catch(Exception $e)
-				{
-					\Log::error($e->getMessage());
-				}
-				$entries = (is_array($entries))? $entries : array();
+				// Uncompress the payload if needed
+				$payload = $this->_uncompress($payload);
+				
+				// Decode the payload if needed
+				$payload = $this->_decode($payload);
+				
+				// Unserialize payload and verify if the entries array is indeed an array else default to empty array
+				is_array(($entries = unserialize($payload))) or $entries = array();
 			}
 		}
 
@@ -191,7 +190,15 @@ class History_Driver_File extends History_Driver
 	 */
 	public function save(array $entries)
 	{
-		$payload = (($this->_config['secure']) ? \Crypt::encode(serialize($entries)) : serialize($entries));
+		// Serialize the entries array
+		$payload = serialize($entries);
+		
+		// Encode the payload if needed
+		$payload = $this->_encode($payload);
+		
+		// Compress the payload if needed
+		$payload = $this->_compress($payload);
+		
 		return \File::update($this->_path, $this->get_filename(), $payload);
 	}
 
