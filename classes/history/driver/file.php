@@ -31,12 +31,12 @@ class History_Driver_File extends History_Driver
 	 * @var string Contains the file prefix
 	 */
 	protected $_prefix = '';
-	
+
 	/**
 	 * @var string Contains the extension of the stored files
 	 */
 	protected $_extension = '';
-	
+
 	/**
 	 * @var string Contains the hash of stored file (it's just a random id)
 	 */
@@ -62,21 +62,22 @@ class History_Driver_File extends History_Driver
 			}
 			$this->_path = sys_get_temp_dir();
 		}
-		
+
 		// Get the real path and trim any trailing slashes
 		$this->_path = rtrim(realpath($this->_path), '/\\');
 
 		// Get the prefix
 		$this->_prefix = $this->_config[$driver]['prefix'];
-		
+
 		// Get the extension
 		$this->_extension = $this->_config[$driver]['extension'];
 
-		if(!($this->_hash = \Session::get($this->_history_id . ".file", false)))
+		if (!($this->_hash = \Session::get($this->_history_id . ".file", false)))
 		{
-			do{
+			do
+			{
 				$this->_hash = static::_gen_hash();
-			}while(file_exists($this->get_fullpath()));
+			} while(file_exists($this->get_fullpath()));
 			\File::create($this->_path, $this->get_filename());
 			\Session::set($this->_history_id . ".file", $this->_hash);
 		}
@@ -114,7 +115,7 @@ class History_Driver_File extends History_Driver
 	{
 		return $this->_prefix;
 	}
-	
+
 	/**
 	 * Gets the File Extension
 	 *
@@ -124,7 +125,7 @@ class History_Driver_File extends History_Driver
 	{
 		return $this->_extension;
 	}
-	
+
 	/**
 	 * Gets the File Hash
 	 *
@@ -134,7 +135,7 @@ class History_Driver_File extends History_Driver
 	{
 		return $this->_hash;
 	}
-	
+
 	/**
 	 * Gets the File Name (File Prefix + File Hash + File Extension)
 	 *
@@ -167,17 +168,9 @@ class History_Driver_File extends History_Driver
 		if (file_exists($this->get_fullpath()))
 		{
 			$payload = \File::read($this->get_fullpath(), true);
-			if ($payload != '')
-			{
-				// Uncompress the payload if needed
-				$payload = $this->_uncompress($payload);
-				
-				// Decode the payload if needed
-				$payload = $this->_decode($payload);
-				
-				// Unserialize payload and verify if the entries array is indeed an array else default to empty array
-				is_array(($entries = unserialize($payload))) or $entries = array();
-			}
+
+			// Process payload -> entries
+			$entries = $this->_process_payload_to_entries($payload);
 		}
 
 		return $entries;
@@ -190,15 +183,9 @@ class History_Driver_File extends History_Driver
 	 */
 	public function save(array $entries)
 	{
-		// Serialize the entries array
-		$payload = serialize($entries);
-		
-		// Encode the payload if needed
-		$payload = $this->_encode($payload);
-		
-		// Compress the payload if needed
-		$payload = $this->_compress($payload);
-		
+		// Process entries -> payload
+		$payload = $this->_process_entries_to_payload($entries);
+
 		return \File::update($this->_path, $this->get_filename(), $payload);
 	}
 

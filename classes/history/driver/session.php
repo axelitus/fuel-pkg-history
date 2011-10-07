@@ -29,7 +29,7 @@ class History_Driver_Session extends History_Driver
 	{
 		return 'session';
 	}
-	
+
 	/**
 	 * Loads the entries using the driver's options
 	 *
@@ -40,17 +40,9 @@ class History_Driver_Session extends History_Driver
 		$entries = array();
 
 		$payload = \Session::get($this->_history_id, '');
-		if ($payload != '')
-		{
-			// Uncompress the payload if needed
-			$payload = $this->_uncompress($payload);
-			
-			// Decode the payload if needed
-			$payload = $this->_decode($payload);
-			
-			// Unserialize payload and verify if the entries array is indeed an array else default to empty array
-			is_array(($entries = unserialize($payload))) or $entries = array();
-		}
+
+		// Process payload -> entries
+		$entries = $this->_process_payload_to_entries($payload);
 
 		return $entries;
 	}
@@ -62,19 +54,14 @@ class History_Driver_Session extends History_Driver
 	 */
 	public function save(array $entries)
 	{
-		// Serialize the entries array
-		$payload = serialize($entries);
-		
-		// Encode the payload if needed
-		$payload = $this->_encode($payload);
-		
-		// Compress the payload if needed
-		$payload = $this->_compress($payload);
-		
+		// Process entries -> payload
+		$payload = $this->_process_entries_to_payload($entries);
+
 		// Insert the payload into the Session
 		$return = \Session::set($this->_history_id, $payload)->get($this->_history_id, null);
-		$return = (($return === null)? false : true); 
-		
+		$return = (($return === null) ? false : true);
+
 		return $return;
 	}
+
 }

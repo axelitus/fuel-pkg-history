@@ -139,7 +139,8 @@ abstract class History_Driver
 	 * Compresses the payload to be stored if configured to do so using the specified
 	 * format and level
 	 *
-	 * @return string the compressed payload using the configured options or the unmodified payload string
+	 * @return string the compressed payload using the configured options or the
+	 * unmodified payload string
 	 */
 	protected function _compress($payload)
 	{
@@ -156,9 +157,9 @@ abstract class History_Driver
 						break;
 					/*
 					 * Not yet supported as there is no gzdecode() PHP method as of yet
-					case 'GZIP':
-						$return = gzencode($return, $this->_config['compression']['level']);
-						break;
+					 case 'GZIP':
+					 $return = gzencode($return, $this->_config['compression']['level']);
+					 break;
 					 * */
 					default:
 					// This includes the ZLIB option
@@ -179,7 +180,8 @@ abstract class History_Driver
 	 * Unompresses the given payload if configured to do so using the specified
 	 * format and level
 	 *
-	 * @return string the uncompressed payload using the configured options or the unmodified payload string
+	 * @return string the uncompressed payload using the configured options or the
+	 * unmodified payload string
 	 */
 	protected function _uncompress($payload)
 	{
@@ -196,9 +198,9 @@ abstract class History_Driver
 						break;
 					/*
 					 * Not yet supported as there is no gzdecode() PHP method as of yet
-					case 'GZIP':
-						$return = gzdecode($return);
-						break;
+					 case 'GZIP':
+					 $return = gzdecode($return);
+					 break;
 					 * */
 					default:
 					// This includes the ZLIB option
@@ -214,17 +216,18 @@ abstract class History_Driver
 
 		return $return;
 	}
-	
+
 	/**
 	 * Encodes the given payload if configured to so
-	 * 
-	 * @return string The encoded payload using the \Crypt class or the unmodified payload string 
+	 *
+	 * @return string The encoded payload using the \Crypt class or the unmodified
+	 * payload string
 	 */
 	protected function _encode($payload)
 	{
 		$return = $payload;
-		
-		if($this->_config['secure'])
+
+		if ($this->_config['secure'])
 		{
 			try
 			{
@@ -235,20 +238,21 @@ abstract class History_Driver
 				\Log::error($e->getMessage());
 			}
 		}
-		
+
 		return $return;
 	}
-	
+
 	/**
 	 * Decodes the given payload if configured to so
-	 * 
-	 * @return string The decoded payload using the \Crypt class or the unmodified payload string
+	 *
+	 * @return string The decoded payload using the \Crypt class or the unmodified
+	 * payload string
 	 */
 	protected function _decode($payload)
 	{
 		$return = $payload;
-		
-		if($this->_config['secure'])
+
+		if ($this->_config['secure'])
 		{
 			try
 			{
@@ -259,7 +263,70 @@ abstract class History_Driver
 				\Log::error($e->getMessage());
 			}
 		}
-		
+
+		return $return;
+	}
+
+	/**
+	 * Processes the entries array to output a payload string.
+	 * It does compression and encoding if needed.
+	 *
+	 * @return array of History_Entry objects
+	 */
+	protected function _process_entries_to_payload(array $entries, $use_base64_encoding = false)
+	{
+		$return = '';
+
+		if (!empty($entries))
+		{
+			// Serialize the entries array
+			$return = @serialize($entries);
+
+			// Encode the payload if needed
+			$return = $this->_encode($return);
+
+			// Compress the payload if needed
+			$return = $this->_compress($return);
+
+			// Encode data usign base64
+			if ($use_base64_encoding)
+			{
+				$return = base64_encode($return);
+			}
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Processes the payload string to extract the entries array.
+	 * It does uncompression and unencoding if needed.
+	 *
+	 * @return array of History_Entry objects
+	 */
+	protected function _process_payload_to_entries($payload, $use_base64_encoding = false)
+	{
+		$return = array();
+
+		if ($payload != '')
+		{
+			// Decode data using base64
+			if ($use_base64_encoding)
+			{
+				$payload = base64_decode($payload);
+			}
+
+			// Uncompress the payload if needed
+			$payload = $this->_uncompress($payload);
+
+			// Decode the payload if needed
+			$payload = $this->_decode($payload);
+
+			// Unserialize payload and verify if the entries array is indeed an array else
+			// default to empty array
+			is_array(($return = @unserialize($payload))) or $return = array();
+		}
+
 		return $return;
 	}
 

@@ -33,9 +33,10 @@ class History_Driver_Database extends History_Driver
 	 * @var string Contains the hash of stored record (it's just a random id)
 	 */
 	protected $_hash = '';
-	
+
 	/**
-	 * @var array Contains the table structure to be used with the function \DBUtil::create_database()
+	 * @var array Contains the table structure to be used with the function
+	 * \DBUtil::create_database()
 	 */
 	// @formatter:off
 	protected $_table_fields = array(
@@ -66,10 +67,10 @@ class History_Driver_Database extends History_Driver
 		$this->_table = $this->_config[$driver]['table'];
 		if (!static::_table_exists($this->_table))
 		{
-			if($this->_config[$driver]['auto_create'])
+			if ($this->_config[$driver]['auto_create'])
 			{
 				\DBUtil::create_table($this->_table, $this->_table_fields, array('hash'));
-				if(!static::_table_exists($this->_table))
+				if (!static::_table_exists($this->_table))
 				{
 					throw new History_Driver_Database_Exception("Database table could not be created.");
 				}
@@ -86,9 +87,9 @@ class History_Driver_Database extends History_Driver
 			{
 				$this->_hash = static::_gen_hash();
 			} while($this->_hash_exists($this->_hash));
-			
+
 			// TODO: When Fuel PHP v1.1 is released get rid of this fallback
-			if(\Fuel::VERSION >= 1.1)
+			if (\Fuel::VERSION >= 1.1)
 			{
 				$now = \Date::forge();
 			}
@@ -197,20 +198,8 @@ class History_Driver_Database extends History_Driver
 			$row = $result->as_array();
 			$payload = $row[0]['content'];
 			
-			if ($payload != '')
-			{
-				// Base 64 decode data from DB
-				$payload = base64_decode($payload);
-				
-				// Uncompress the payload if needed
-				$payload = $this->_uncompress($payload);
-				
-				// Decode the payload if needed
-				$payload = $this->_decode($payload);
-				
-				// Unserialize payload and verify if the entries array is indeed an array else default to empty array
-				is_array(($entries = unserialize($payload))) or $entries = array();
-			}
+			// Process payload -> entries (use base64 encoding)
+			$entries = $this->_process_payload_to_entries($payload, true);
 		}
 
 		return $entries;
@@ -225,17 +214,8 @@ class History_Driver_Database extends History_Driver
 	{
 		$return = false;
 		
-		// Serialize the entries array
-		$payload = serialize($entries);
-		
-		// Encode the payload if needed
-		$payload = $this->_encode($payload);
-		
-		// Compress the payload if needed
-		$payload = $this->_compress($payload);
-		
-		// Base 64 encode data to store in DB
-		$payload = base64_encode($payload);
+		// Process entries -> payload (use base64 encoding)
+		$payload = $this->_process_entries_to_payload($entries, true);
 		
 		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
 		if(\Fuel::VERSION >= 1.1)
