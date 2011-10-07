@@ -7,8 +7,8 @@ The data (History entries stack) itself is stored depending on the driver you ch
 
 ## About
 
-* Latest Version: 1.0
-* Release Date: 05/10/2011
+* Latest Version: 1.0.3
+* Release Date: 07/10/2011
 * Author: Axel Pardemann ([http://axelitus.mx] (http://axelitus.mx))
 
 ## Requirements
@@ -114,6 +114,11 @@ return array(
 	'history_id' => 'history',
 	'driver' => array(
 		'name' => 'file',
+		'compression' => array(
+			'active' => true,
+			'format' => 'zlib',
+			'level' => 5
+		),
 		'secure' => true,
 		'hash_length' => 8,
 		'file' => array(
@@ -129,7 +134,8 @@ return array(
 	),
 	'entries' => array(
 		'limit' => 15,
-		'prevent_refresh' => true
+		'prevent_refresh' => true,
+		'use_full_post' => false
 	)
 );
 ```
@@ -149,6 +155,11 @@ Example:
 ```
 'driver' => array(
 	'name' => 'file',
+	'compression' => array(
+		'active' => true,
+		'format' => 'zlib',
+		'level' => 5
+	),
 	'secure' => true,
 	'hash_length' => 8,
 	'[driver_specifics]' => array(
@@ -162,9 +173,35 @@ Example:
 )
 ```
 
-##### name (type: string, default: 'file')
+##### name (type: string, default: 'file') [Options: file|database|session]
 
 The driver to be used. It can be one of the following: file|database|session
+
+##### compression (type: array)
+
+The compression options to be used.
+
+Example:
+
+```
+'compression' => array(
+	'active' => true,
+	'format' => 'zlib',
+	'level' => 5
+)
+```
+
+###### active (type: bool, default: true)
+
+Whether to use compression or not.
+
+###### format (type: string, default: 'zlib') [Options: zlib|deflate]
+
+Whether to compress the data before encoding or not.
+
+###### level (type: int, default: 5) [From 0 to 9]
+
+The level of compression to use.
 
 ##### secure (type: bool, default: true)
 
@@ -223,6 +260,10 @@ This value limits the entries that the stack will record. This works in the FIFO
 ##### prevent_refresh (type: bool, default: true)
 
 When set to true this option prevents duplicate entries by refresh. What it essentially does is that it does not allow an exact follow-up entry. If a refresh is detected the new entry will be discarded, thus not registering it completely.
+
+##### use_full_post (type: bool, default: false)
+
+Whether to save the full post data in the entry or just the post data hash.
 
 ### Driver specifics
 
