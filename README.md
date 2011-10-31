@@ -117,7 +117,11 @@ return array(
 		'limit' => 15,
 		'prevent_refresh' => true,
 		'use_full_post' => false,
-		'exclude' => array()
+		'exclude' => array(
+			'_root_',
+			'_404_',
+			'welcome/test'
+		)
 	)
 );
 ```
@@ -232,7 +236,11 @@ Example:
 	'limit' => 15,
 	'prevent_refresh' => true,
 	'use_full_post' => false,
-	'exclude' => array()
+	'exclude' => array(
+		'_root_',
+		'_404_',
+		'welcome/test'
+	)
 )
 ```
 
