@@ -3,7 +3,7 @@
  * Fuel is a fast, lightweight, community driven PHP5 framework.
  *
  * @package    Fuel
- * @version    1.0
+ * @version    1.1
  * @author     Fuel Development Team
  * @license    MIT License
  * @copyright  2010 - 2011 Fuel Development Team
@@ -30,25 +30,23 @@ abstract class History_Driver_GC
 	 */
 	protected $_config = array();
 
+	// @formatter:off
 	/**
 	 * @var array of global config defaults
 	 */
-	protected static $_config_defaults = array('threshold' => 900, 'probability' => 5);
-
+	protected static $_config_defaults = array(
+		'active' => true,
+		'threshold' => 900,
+		'probability' => 5
+	);
+	// @formatter:on
 	/**
 	 * Prevent direct instantiation
 	 */
 	private function __construct(History_Driver $parent, array $config = array())
 	{
 		$this->_parent = $parent;
-		if (method_exists('\Arr', 'merge_replace'))
-		{
-			$this->_config = \Arr::merge_replace(static::$_config_defaults, $config);
-		}
-		else
-		{
-			$this->_config = \Arr::merge(static::$_config_defaults, $config);
-		}
+		$this->_config = \Arr::merge(static::$_config_defaults, $config);
 	}
 
 	/**

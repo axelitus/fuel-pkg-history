@@ -3,7 +3,7 @@
  * Fuel is a fast, lightweight, community driven PHP5 framework.
  *
  * @package    Fuel
- * @version    1.0
+ * @version    1.1
  * @author     Fuel Development Team
  * @license    MIT License
  * @copyright  2010 - 2011 Fuel Development Team
@@ -50,24 +50,11 @@ class History_Entry implements \Serializable
 	 */
 	private function __construct(array $data = array(), $use_full_post = false)
 	{
-		if (method_exists('\Arr', 'merge_replace'))
-		{
-			$this->_data = \Arr::merge_replace(static::$_data_defaults, $data);
-		}
-		else
-		{
-			$this->_data = \Arr::merge(static::$_data_defaults, $data);
-		}
+		// Set the entry's data
+		$this->_data = \Arr::merge(static::$_data_defaults, $data);
 
-		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
-		if (\Fuel::VERSION >= 1.1)
-		{
-			(is_null($this->_data['datetime']) or !($this->_data['datetime'] instanceof \Fuel\Core\Date)) and $this->_data['datetime'] = \Date::forge();
-		}
-		else
-		{
-			(is_null($this->_data['datetime']) or !($this->_data['datetime'] instanceof \Fuel\Core\Date)) and $this->_data['datetime'] = \Date::factory();
-		}
+		// Set the current date if non is given
+		(is_null($this->_data['datetime']) or !($this->_data['datetime'] instanceof \Fuel\Core\Date)) and $this->_data['datetime'] = \Date::forge();
 
 		// Create the post hash to determine if it's the same uri but different post data
 		if ($use_full_post)
@@ -75,15 +62,8 @@ class History_Entry implements \Serializable
 			$this->_data['post']['data'] = \Input::post();
 		}
 		
-		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
-		if (\Fuel::VERSION >= 1.1)
-		{
-			$this->_data['post']['hash'] = sha1(json_encode(\Input::post()));
-		}
-		else
-		{
-			$this->_data['post']['hash'] = sha1(json_encode($_POST));
-		}
+		// Get the post's hash
+		$this->_data['post']['hash'] = sha1(json_encode(\Input::post()));
 	}
 
 	/**
@@ -153,21 +133,10 @@ class History_Entry implements \Serializable
 	 */
 	public function __get($key)
 	{
-		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
-		if (\Fuel::VERSION >= 1.1)
+		// Get the attribute if exists
+		if (($value = \Arr::get($this->_data, $key, null)) === null)
 		{
-
-			if (($value = \Arr::get($this->_data, $key, null)) === null)
-			{
-				throw new History_Entry_Exception("The property '{$key}' does not exist.");
-			}
-		}
-		else
-		{
-			if (($value = \Arr::element($this->_data, $key, null)) === null)
-			{
-				throw new History_Entry_Exception("The property '{$key}' does not exist.");
-			}
+			throw new History_Entry_Exception("The property '{$key}' does not exist.");
 		}
 
 		return $value;
@@ -215,19 +184,12 @@ class History_Entry implements \Serializable
 	 *
 	 * @return null|string The uri segment or null if it does not exists
 	 */
-	public function get_segment($index = 0)
+	public function get_segment($index)
 	{
-		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
-		if (\Fuel::VERSION >= 1.1)
-		{
-			$segments = \Arr::get($this->_data, 'segments', array());
-		}
-		else
-		{
-			$segments = \Arr::element($this->_data, 'segments', array());
-		}
+		// Get the segments
+		$segments = \Arr::get($this->_data, 'segments', array());
 
-		return (isset($segments[$index]) ? $segments[$index] : null);
+		return \Arr::get($segments, $index, null);
 	}
 
 	/**

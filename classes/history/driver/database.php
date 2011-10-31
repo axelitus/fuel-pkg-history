@@ -3,7 +3,7 @@
  * Fuel is a fast, lightweight, community driven PHP5 framework.
  *
  * @package    Fuel
- * @version    1.0
+ * @version    1.1
  * @author     Fuel Development Team
  * @license    MIT License
  * @copyright  2010 - 2011 Fuel Development Team
@@ -88,15 +88,9 @@ class History_Driver_Database extends History_Driver
 				$this->_hash = static::_gen_hash();
 			} while($this->_hash_exists($this->_hash));
 
-			// TODO: When Fuel PHP v1.1 is released get rid of this fallback
-			if (\Fuel::VERSION >= 1.1)
-			{
-				$now = \Date::forge();
-			}
-			else
-			{
-				$now = \Date::factory();
-			}
+			// Get the current date/time
+			$now = \Date::forge();
+				
 			// @formatter:off
 			list($insert_id, $rows_affected) = \DB::insert($this->_table)->set(array(
 				'hash' => $this->_hash,
@@ -217,15 +211,9 @@ class History_Driver_Database extends History_Driver
 		// Process entries -> payload (use base64 encoding)
 		$payload = $this->_process_entries_to_payload($entries, true);
 		
-		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
-		if(\Fuel::VERSION >= 1.1)
-		{
-			$now = \Date::forge();
-		}
-		else
-		{
-			$now = \Date::factory();
-		}
+		// Get the current date/time
+		$now = \Date::forge();
+			
 		list($insert_id, $affected_rows) = \DB::query("INSERT INTO `{$this->_table}` (`hash`, `content`, `updated`) VALUES ('{$this->_hash}', '{$payload}', '{$now->format('%Y-%m-%d %H:%M:%S')}') ON DUPLICATE KEY UPDATE `content` = '{$payload}', `updated` = '{$now->format('%Y-%m-%d %H:%M:%S')}';")->execute();
 		
 		if($affected_rows == 1)

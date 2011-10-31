@@ -3,7 +3,7 @@
  * Fuel is a fast, lightweight, community driven PHP5 framework.
  *
  * @package    Fuel
- * @version    1.0
+ * @version    1.1
  * @author     Fuel Development Team
  * @license    MIT License
  * @copyright  2010 - 2011 Fuel Development Team
@@ -32,15 +32,8 @@ class History_Driver_GC_File extends History_Driver_GC
 		$extension = $this->_parent->get_extension();
 		if ($handle = opendir($path))
 		{
-			// TODO: When Fuel PHP v1.1 is released get rid of this fallback
-			if(\Fuel::VERSION >= 1.1)
-			{
-				$expire = \Date::forge()->get_timestamp() - $this->_config['threshold'];
-			}
-			else
-			{
-				$expire = \Date::factory()->get_timestamp() - $this->_config['threshold'];
-			}
+			// Calculate the expiration difference
+			$expire = \Date::forge()->get_timestamp() - $this->_config['threshold'];
 			
 			while (($file = readdir($handle)) !== false)
 			{

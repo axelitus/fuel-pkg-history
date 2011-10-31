@@ -3,7 +3,7 @@
  * Fuel is a fast, lightweight, community driven PHP5 framework.
  *
  * @package    Fuel
- * @version    1.0
+ * @version    1.1
  * @author     Fuel Development Team
  * @license    MIT License
  * @copyright  2010 - 2011 Fuel Development Team
@@ -67,7 +67,12 @@ return array(
 		// Do not allow duplicate entries by refresh (optional, default = true).
 		'prevent_refresh' => true,
 		// Whether to save the full post data in the entry or just the post data hash (optional, default = false).
-		'use_full_post' => false
+		'use_full_post' => false,
+		// Exclude
+		'exclude' => array(
+			'_root_',
+			'_404_'
+		)
 	)
 );
 // @formatter:on

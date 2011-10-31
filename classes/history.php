@@ -3,7 +3,7 @@
  * Fuel is a fast, lightweight, community driven PHP5 framework.
  *
  * @package    Fuel
- * @version    1.0
+ * @version    1.1
  * @author     Fuel Development Team
  * @license    MIT License
  * @copyright  2010 - 2011 Fuel Development Team
@@ -25,9 +25,9 @@ class History_Exception extends \Fuel_Exception {}
 class History
 {
 	/**
-	 * @var string The version of the History pacakge
+	 * @var string The version of the History package
 	 */
-	const VERSION = '1.0.3';
+	const VERSION = '1.1';
 
 	/**
 	 * @var array Contains the browser history for current browser session
@@ -94,11 +94,20 @@ class History
 		'entries' => array(
 			'limit' => 15,
 			'prevent_refresh' => true,
-			'use_full_post' => false
+			'use_full_post' => false,
+			'exclude' => array()
 		)
 	);
 	// @formatter:on
 
+	/**
+	 * Prevent direct instatiation
+	 */
+	protected function __construct()
+	{
+		
+	}
+	
 	/**
 	 * Initializes the History Class
 	 */
@@ -107,15 +116,8 @@ class History
 		// See if the class has already been initialized
 		if (!static::$_initialized)
 		{
-			\Config::load('history', true);
-			if (method_exists('\Arr', 'merge_replace'))
-			{
-				static::$_config = \Arr::merge_replace(static::$_config_defaults, \Config::get('history'));
-			}
-			else
-			{
-				static::$_config = \Arr::merge(static::$_config_defaults, \Config::get('history'));
-			}
+			// Load the config options
+			static::_load_config();
 
 			// If no other supported driver is loaded then set the driver to file
 			static::$_config['driver']['name'] = ((static::$_config['driver']['name'] == 'database' || static::$_config['driver']['name'] == 'session') ? static::$_config['driver']['name'] : 'file');
@@ -153,16 +155,64 @@ class History
 		}
 	}
 
+	public static function _load_config()
+	{
+		// Load the config file
+		\Config::load('history', true);
+		static::$_config = \Arr::merge(static::$_config_defaults, \Config::get('history'));
+		
+		// If there are special routes in the entries.exclude array then change them
+		if(!empty(static::$_config['entries']['exclude']))
+		{
+			// Look for all this special routes
+			$special_routes = array('_root_', '_404_');
+			foreach($special_routes as $special_route)
+			{
+				// Look for special route and change it
+				if(($key = array_search($special_route, static::$_config['entries']['exclude'])) !== false)
+				{
+					$route = array_key_exists($special_route, \Router::$routes) ? \Router::$routes[$special_route]->translation : \Config::get('routes.'.$special_route);
+					static::$_config['entries']['exclude'][$key] = $route;
+					
+					// If it's _root_ include an empty uri too and a controller-only uri if the 2nd segment is index
+					if($special_route == '_root_' && !in_array('', static::$_config['entries']['exclude']))
+					{
+						$uri = new \Uri($route);
+						if(($controller = $uri->get_segment(1)) !== null && $uri->get_segment(2) == 'index')
+						{
+							static::$_config['entries']['exclude'][] = $controller;
+						}
+						static::$_config['entries']['exclude'][] = '';
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * Pushes a History_Entry to the History stack
 	 */
 	public static function push(History_Entry $entry)
 	{
+		// Verify that the uri is not in the exclude array
+		$uri = $entry->uri;
+		if(in_array($uri, static::$_config['entries']['exclude']))
+		{
+			$uri = ($uri == '')? '_root_' : $uri;
+			
+			// Log Info
+			\Log::info(get_called_class() . "::push() - The entry's uri '{$uri}' is set to be excluded so it will not be registered.");
+
+			return;
+		}
+		
 		// Use the prevent flag when set to prevent refresh entries
 		if (static::$_config['entries']['prevent_refresh'] && static::$_current >= 0 && $entry->equals(static::current()))
 		{
+			$uri = ($uri == '')? '_root_' : $uri;
+			
 			// Log Info
-			\Log::info(get_called_class() . "::push() - Refresh entry detected! The options are set to ommit those entries so it was not recorded.");
+			\Log::info(get_called_class() . "::push() - Refresh entry detected with uri: '{$uri}'! The options are set to ommit those entries so it will not be registered.");
 
 			return;
 		}

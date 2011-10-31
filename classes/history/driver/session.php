@@ -3,7 +3,7 @@
  * Fuel is a fast, lightweight, community driven PHP5 framework.
  *
  * @package    Fuel
- * @version    1.0
+ * @version    1.1
  * @author     Fuel Development Team
  * @license    MIT License
  * @copyright  2010 - 2011 Fuel Development Team
@@ -58,16 +58,9 @@ class History_Driver_Session extends History_Driver
 		$payload = $this->_process_entries_to_payload($entries);
 
 		// Insert the payload into the Session
-		// TODO: When Fuel PHP v1.1 is released get rid of this fallback
-		if (\Fuel::VERSION >= 1.1)
-		{
-			$return = \Session::set($this->_history_id, $payload)->get($this->_history_id, null);
-		}
-		else
-		{
-			$return = \Session::set($this->_history_id, $payload);
-			$return = \Session::get($this->_history_id, null);
-		}
+		$return = \Session::set($this->_history_id, $payload)->get($this->_history_id, null);
+		
+		// Verify if the entries got inserted
 		$return = (($return === null) ? false : true);
 
 		return $return;

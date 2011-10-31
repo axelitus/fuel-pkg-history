@@ -7,14 +7,14 @@ The data (History entries stack) itself is stored depending on the driver you ch
 
 ## About
 
-* Latest Version: 1.0.3
-* Release Date: 07/10/2011
+* Latest Version: 1.1
+* Release Date: 31/10/2011
 * Author: Axel Pardemann ([http://axelitus.mx] (http://axelitus.mx))
 
 ## Requirements
 
-* Fuel PHP Framework version 1.0.1 or later (v1.1 will be preferred when it gets released)
-* MySql Database v5.0 or later (if using the database driver)
+* FuelPHP Framework version 1.1 (it is not backwards compatible anymore, please update you FuelPHP version).
+* MySql Database v5.0 or later (required only if using the database driver). Other databases may work but they are not tested.
 
 ## Development Team
 
@@ -46,26 +46,7 @@ git clone git@github.com:axelitus/fuel-pkg-history history
 
 ### Using Oil
 
-This package follows standard installation rules, which can be found within the [FuelPHP Documentation for Packages] (http://fuelphp.com/docs/general/packages.html)
-First you need to add axelitus' GitHub location to the package configuration file (package.php) located in fuel/core/config/ folder (you are encouraged to copy this file to your app/config folder and edit that file instead):
-
-```
-// config/package.php
-return array(
-    'sources' => array(
-        'github.com/fuel-packages',
-        'github.com/axelitus',			// ADD THIS LINE
-    ),
-);
-```
-
-Then just run the following command on the terminal from where the oil command is (this command uses the changes proposed in the pull request [45](https://github.com/fuel/oil/pull/45) in the [GitHub Oil Repo](https://github.com/fuel/oil). If you are not using this changes, you can ommit the 'folder=history' part from the following command and please make sure to rename the newly created 'pkg-history' folder to 'history' under the packages folder or the package won't work):
-
-```
-php oil package install pkg-history folder=history
-```
-
-This method will change when Fuel v1.1 is released.
+Waiting for release v1.1...
 
 ## Usage
 
@@ -135,7 +116,8 @@ return array(
 	'entries' => array(
 		'limit' => 15,
 		'prevent_refresh' => true,
-		'use_full_post' => false
+		'use_full_post' => false,
+		'exclude' => array()
 	)
 );
 ```
@@ -249,7 +231,8 @@ Example:
 'entries' => array(
 	'limit' => 15,
 	'prevent_refresh' => true,
-	'use_full_post' => false
+	'use_full_post' => false,
+	'exclude' => array()
 )
 ```
 
@@ -264,6 +247,12 @@ When set to true this option prevents duplicate entries by refresh. What it esse
 ##### use_full_post (type: bool, default: false)
 
 Whether to save the full post data in the entry or just the post data hash.
+
+##### exclude (type: array, default: array())
+
+An array of uri's to be excluded from history registration (filtered). The special routes \_root\_ and \_404\_ can be used in this array, they'll get automatically converted to their actual value (from the routes.php config file).
+For the \_404\_ special route the value in the routes config file will be used.
+For the\ _root\_ special route the value in the routes config file will be used and another empty item will be added (as it is root). Also a controller-only uri will be added if the 2nd segment of the route's config is 'index').
 
 ### Driver specifics
 
@@ -283,19 +272,19 @@ The file driver uses a specific config key named 'file' with the following optio
 
 If something fails please verify the following:
 
-* Make sure that the specified path is writeable
+* Make sure that the specified path is writeable.
 
 WARNING! (Please take a look at this or you could experience some problems):
 
-* The File Garbage Collector will collect *ALL* files that meet the codnitions:
-	- Filename starts with prefix 'prefix' and has extension 'extension'
-	- File is expired using the 'threshold' value
+* The File Garbage Collector will collect *ALL* files that meet the conditions:
+	- Filename starts with prefix 'prefix' and has extension 'extension'.
+	- File has already expired using the 'threshold' value.
 
-So please make sure that you use a dedicated path for this, or the prefix is unique to the History stack to rpevent loss of other data.
+So please make sure that you use a dedicated path for this, or that the prefix is unique to the History stack to prevent loss of other data.
 
 #### Database driver
 
-The table structure that the Database driver relies on is the following:
+The table structure that the Database driver relies on is the following (MySql 'specific' creation code, it may work with other DB drivers):
 
 	CREATE TABLE `history` (
 	  `hash` varchar(40) NOT NULL,
@@ -319,7 +308,7 @@ The Session driver uses the \Session core class to store the entries stack. This
 
 WARNING!:
 
-* When using the 'cookie' driver for the session, the storage capacity is limited to 4kb (that means that the history stack and any other data you are storing in the session counts towards this limit). When this limit is reached you'll see this message: "The session data stored by the application in the cookie exceeds 4Kb. Select a different session storage driver". Use this with care as it may broke your app completely. You are encourage to use this combination with a small entries limit like 2 (current and previous only).
+* When using the 'cookie' driver for the session, the storage capacity is limited to 4kb (that means that the history stack and any other data you are storing in the session counts towards this limit). When this limit is reached you'll see this message: "The session data stored by the application in the cookie exceeds 4Kb. Select a different session storage driver". Use this with care as it may broke your app completely. You are encouraged to use this driver with a small entries limit like 2 (current and previous only).
 
 ### Methods
 
@@ -577,14 +566,7 @@ if($entry->equals($uri->uri))
 ## Future development
 
 The first version has the basic functionality one would expect. New features will be evaluated and added as soon as possible.
-
-### Features for next Release 1.0.3
-
-The features for the next version are the ones listed above. (If you have any suggestions feel free to send them using [GitHub](https://github.com/axelitus) or send an email to dev [at] axelitus [dot] mx)
-
-Features:
-
-* Allow compression using different libraries.
+Please feel free to send feature erquests through the Github repository.
 
 ## Special Thanks
 

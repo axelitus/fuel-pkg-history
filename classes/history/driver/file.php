@@ -3,7 +3,7 @@
  * Fuel is a fast, lightweight, community driven PHP5 framework.
  *
  * @package    Fuel
- * @version    1.0
+ * @version    1.1
  * @author     Fuel Development Team
  * @license    MIT License
  * @copyright  2010 - 2011 Fuel Development Team
@@ -17,8 +17,6 @@ namespace History;
  *
  * @package     Fuel
  * @subpackage  History
- * TODO: We need a Garbage Collector to delete the files that are not needed
- * anymore.
  */
 class History_Driver_File extends History_Driver
 {
@@ -185,6 +183,9 @@ class History_Driver_File extends History_Driver
 	{
 		// Process entries -> payload
 		$payload = $this->_process_entries_to_payload($entries);
+		
+		// Log Info
+		\Log::info(get_called_class() . "::save() - The file to be saved is: {$this->get_fullpath()}");
 
 		return \File::update($this->_path, $this->get_filename(), $payload);
 	}
