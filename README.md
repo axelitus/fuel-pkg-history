@@ -46,7 +46,7 @@ git clone git@github.com:axelitus/fuel-pkg-history history
 
 ### Using Oil
 
-Waiting for release v1.1...
+Waiting for release v1.1 to complete this...
 
 ## Usage
 
@@ -81,13 +81,13 @@ class MyNewController extends Controller_History
 
 The Controller_History class uses a modified version of the before() and after() controller methods, so if you overload this methods inside your extended controller it won't work automatically unless you call the parent::before() and parent::after() statements inside your own methods.
 
-Be sure to check the code in the base class and modify it as needed if you don't want to use the parent::before() and parent::after() calls or you need to do soemthing 'special'.
+Be sure to check the code in the base class and modify it as needed if you don't want to use the parent::before() and parent::after() calls or you need to do something 'special'.
 
 ### Configuration
 
-The configuration is done using the file history.php in the config directory (you are encourage to copy this file to your app/config folder and edit that file instead).
+The configuration is done using the file _history.php_ in the config directory (you are encouraged to copy this file to your _app/config_ folder and edit that file instead).
 
-An example of the contents of a history.php config file:
+An example of the contents of a _history.php_ config file:
 
 ```
 // config/history.php
@@ -126,11 +126,11 @@ return array(
 );
 ```
 
-The options in the config array do the following, most of them (if not all) are optional and will default to something:
+The options in the config array do the following, most of them (if not all) are optional and will default to something (explained further on):
 
 #### history_id (type: string, default: 'history')
 
-The history_id configuration value is the key to be used in the Session to store driver data.
+The *history_id* configuration value is the key to be used in the Session to store driver data.
 
 #### driver (type: array)
 
@@ -161,7 +161,7 @@ Example:
 
 ##### name (type: string, default: 'file') [Options: file|database|session]
 
-The driver to be used. It can be one of the following: file|database|session
+The driver to be used. It can be one of the following: file | database | session
 
 ##### compression (type: array)
 
@@ -193,11 +193,11 @@ The level of compression to use.
 
 Whether to encode the entries (using Fuel\Crypt class) or not.
 
-This setting will be ignored when using the Session driver as the \Session class encodes encodes all data automatically unless otherwise stated in the own Session's config.
+This setting will be ignored when using the Session driver as the Fuel\Session class encodes all data automatically unless otherwise stated in the own Session's config.
 
 ##### hash_length (type: int, default: 8)
 
-The length of the hash to be used to identify the stack (used for drivers to store the data and be able retrieve it later).
+The length of the hash to be used to identify the stack (used for drivers to store the data and be able to retrieve it later).
 
 ##### gc (type: array)
 
@@ -215,7 +215,7 @@ Example:
 
 ###### active (type: bool, default: true)
 
-Whether to use Garbage Collection or not. You should leave this on to prevent data flooding and even collisions. When set to false the Garbage Collecto won't even be instantiated.
+Whether to use garbage collection or not. You should leave this set to _true_ to prevent data flooding and even collisions. When set to _false_ the Garbage Collector won't even be instantiated.
 
 ###### threshold (type: int, default: 900)
 
@@ -246,21 +246,22 @@ Example:
 
 ##### limit (type: int, default: 15 [use 0 for unlimited])
 
-This value limits the entries that the stack will record. This works in the FIFO manner.
+This value limits the entries that the stack will register. The entries array works as a FIFO stack.
 
 ##### prevent_refresh (type: bool, default: true)
 
-When set to true this option prevents duplicate entries by refresh. What it essentially does is that it does not allow an exact follow-up entry. If a refresh is detected the new entry will be discarded, thus not registering it completely.
+When set to _true_ this option prevents duplicate entries by refresh. What it essentially does is that it does not allow an identical follow-up entry. If a refresh is detected the new entry will be discarded, thus not registering it completely.
 
-##### use_full_post (type: bool, default: false)
+##### use\_full\_post (type: bool, default: false)
 
 Whether to save the full post data in the entry or just the post data hash.
 
 ##### exclude (type: array, default: array())
 
 An array of uri's to be excluded from history registration (filtered). The special routes \_root\_ and \_404\_ can be used in this array, they'll get automatically converted to their actual value (from the routes.php config file).
-For the \_404\_ special route the value in the routes config file will be used.
-For the\ _root\_ special route the value in the routes config file will be used and another empty item will be added (as it is root). Also a controller-only uri will be added if the 2nd segment of the route's config is 'index').
+
+* For the \_404\_ special route the value in the routes config file will be used.
+* For the \_root\_ special route the value in the routes config file will be used and another empty item will be added (as it is root). Also a controller-only uri will be added if the 2nd segment of the route's config is 'index').
 
 ### Driver specifics
 
@@ -282,17 +283,17 @@ If something fails please verify the following:
 
 * Make sure that the specified path is writeable.
 
-WARNING! (Please take a look at this or you could experience some problems):
+**WARNING!** (Please take a look at this or you could experience some problems):
 
-* The File Garbage Collector will collect *ALL* files that meet the conditions:
+* The File Garbage Collector will collect _**ALL**_ files that meet the following conditions:
 	- Filename starts with prefix 'prefix' and has extension 'extension'.
 	- File has already expired using the 'threshold' value.
 
-So please make sure that you use a dedicated path for this, or that the prefix is unique to the History stack to prevent loss of other data.
+**Note:** Please make sure that you use a dedicated path for this, or that the prefix is unique to the History stack to prevent loss of other data.
 
 #### Database driver
 
-The table structure that the Database driver relies on is the following (MySql 'specific' creation code, it may work with other DB drivers):
+The table structure that the Database driver relies on is the following (MySql 'specific' creation code, it may work with other DB drivers though):
 
 	CREATE TABLE `history` (
 	  `hash` varchar(40) NOT NULL,
@@ -312,15 +313,15 @@ The database driver uses a specific config key named 'database' with the followi
 
 #### Session driver
 
-The Session driver uses the \Session core class to store the entries stack. This driver is intended to be used with care as it relies on the capabilities of the underlying class. This means that it dependes on the chosen driver to handle the sessions across Fuel. You should be aware of how the driver handles data and what it's limits are. At the moment this driver does not have a specifics config key, but the key 'session' is reserved for the future development.
+The Session driver uses the Fuel\Session core class to store the entries stack. This driver is intended to be used with care as it relies on the capabilities of the underlying class. This means that it dependes on the chosen driver to handle the sessions across FuelPHP. You should be aware of how the driver handles data and what it's limits are. At the moment this driver does not have a specifics config key, but the key 'session' is reserved for possible future development.
 
-WARNING!:
+**WARNING!:**
 
 * When using the 'cookie' driver for the session, the storage capacity is limited to 4kb (that means that the history stack and any other data you are storing in the session counts towards this limit). When this limit is reached you'll see this message: "The session data stored by the application in the cookie exceeds 4Kb. Select a different session storage driver". Use this with care as it may broke your app completely. You are encouraged to use this driver with a small entries limit like 2 (current and previous only).
 
 ### Methods
 
-The useful methods (and the ones that you will be using the most (if not the only ones) while using the package) are listed in the following sections.
+The useful methods (and the ones that you will be using the most while using this package) are listed in the following sections.
 
 #### History class
 
@@ -332,9 +333,9 @@ Contains a string for the current version of the package.
 
 ##### History::push(History_Entry $entry)
 
-_Description:_ Pushes a History_Entry to the History stack.
-_Static:_ Yes
-_Return:_ void
+**Description:** Pushes a History_Entry to the History stack.  
+**Static:** Yes  
+**Return:** void
 
 ```
 History::push($entry);
@@ -342,9 +343,9 @@ History::push($entry);
 
 ##### History::push_request(\Fuel\Core\Request $request)
 
-_Description:_ Pushes a History_Entry based on a \Fuel\Core\Request to the History stack.
-_Static:_ Yes
-_Return:_ void
+**Description:** Pushes a History_Entry based on a \Fuel\Core\Request to the History stack.  
+**Static:** Yes  
+**Return:** void
 
 ```
 // From a Controller method
@@ -353,9 +354,9 @@ History::push_request($this->request);
 
 ##### History::pop()
 
-_Description:_ Pops the top-most (current) History_Entry from the History stack. Note: this will shorten the entries by one element. Returns null if no entry is found in the stack.
-_Static:_ Yes
-_Return:_ null|History_Entry
+**Description:** Pops the top-most (current) History\_Entry from the History stack. Note: this will shorten the entries by one element. Returns null if no entry is found in the stack.  
+**Static:** Yes  
+**Return:** null|History_Entry
 
 Note: this will shorten the entries by one element.
 
@@ -365,9 +366,9 @@ $entry = History::pop();
 
 ##### History::get_entries()
 
-_Description:_ Gets the entries as an array.
-_Static:_ Yes
-_Return:_ array of History_Entry objects
+**Description:** Gets the entries as an array.  
+**Static:** Yes  
+**Return:** array of History_Entry objects.
 
 ```
 $entries = History::get_entries();
@@ -379,9 +380,9 @@ foreach($entries as $entry)
 
 ##### History::get_entry($index)
 
-_Description:_ Gets the entry at the specified index. Returns null if index is out of bounds.
-_Static:_ Yes
-_Return:_ null|History_Entry
+**Description:** Gets the entry at the specified index. Returns null if index is out of bounds.  
+**Static:** Yes  
+**Return:** null|History_Entry
 
 ```
 $entry = History::get_entry();
@@ -393,9 +394,9 @@ if($entry !== null)
 
 ##### History::count()
 
-_Description:_ Gets the history entries count.
-_Static:_ Yes
-_Return:_ int
+**Description:** Gets the history entries count.  
+**Static:** Yes  
+**Return:** int
 
 ```
 $count = History::count();
@@ -407,9 +408,9 @@ if($count > 10)
 
 ##### History::current()
 
-_Description:_ Gets the current History entry. Returns null if the stack is empty.
-_Static:_ Yes
-_Return:_ null|History_Entry
+**Description:** Gets the current History entry. Returns null if the stack is empty.  
+**Static:** Yes  
+**Return:** null|History_Entry
 
 ```
 $entry = History::current();
@@ -420,9 +421,9 @@ echo $entry->get_method();
 
 ##### History::previous()
 
-_Description:_ Gets the previous History entry. Returns null if no previous entry s found in the stack.
-_Static:_ Yes
-_Return:_ null|History_Entry
+**Description:** Gets the previous History entry. Returns null if no previous entry is found in the stack.  
+**Static:** Yes  
+**Return:** null|History_Entry
 
 ```
 $entry = History::previous();
@@ -433,9 +434,9 @@ echo $entry->get_method();
 
 ##### History::load()
 
-_Description:_ Loads the stored entries to the History stack using the configured driver.
-_Static:_ Yes
-_Return:_ bool
+**Description:** Loads the stored entries to the History stack using the configured driver.  
+**Static:** Yes  
+**Return:** bool
 
 ```
 History::load();
@@ -443,9 +444,9 @@ History::load();
 
 ##### History::save()
 
-_Description:_ Saves the History to a store using the configured driver.
-_Static:_ Yes
-_Return:_ bool
+**Description:** Saves the History to a store using the configured driver.  
+**Static:** Yes  
+**Return:** bool
 
 ```
 History::save();
@@ -457,9 +458,9 @@ This class represents an entry in the History stack.
 
 ##### History_Entry::forge($data)
 
-_Description:_ Forges a new History_Entry object. It can take an array of data, an \Uri object or an uri string.
-_Static:_ Yes
-_Return:_ History_Entry
+**Description:** Forges a new History\_Entry object. It can take an array of data, a Fuel\Uri object or an uri string.  
+**Static:** Yes  
+**Return:** History_Entry
 
 ```
 $data = array(
@@ -475,44 +476,44 @@ $entry = History_Entry::forge($data);
 
 The only required data option is uri. (In fact, instead of an array one could use only the uri string. All other values would be automatically created).
 
-##### History_Entry::from_request(\Fuel\Core\Request $request)
+##### History\_Entry::from_request(\Fuel\Core\Request $request)
 
-_Description:_ Forges a new History_Entry from a Fuel\Core\Request object.
-_Static:_ Yes
-_Return:_ History_Entry
+**Description:** Forges a new History\_Entry from a Fuel\Core\Request object.  
+**Static:** Yes  
+**Return:** History_Entry
 
 ```
 // From a Controller method
 $entry = History_Entry::from_request($this->request);
 ```
 
-##### History_Entry->get_controller()
+##### History\_Entry->get_controller()
 
-_Description:_ Gets the controller part from the uri in the History_Entry object. Returns an empty string if none is found or the uri is empty. If using Routes this won't match the really executed controller as the History class records only the uri Requests.
-_Static:_ No
-_Return:_ null|string
+**Description:** Gets the controller part from the uri in the History_Entry object. Returns an empty string if none is found or the uri is empty. If using Routes this won't match the really executed controller as the History class records only the uri Requests.  
+**Static:** No  
+**Return:** null|string
 
 ```
 $entry = History_Entry::forge('welcome/index');
 $controller = $entry->get_controller();
 ```
 
-##### History_Entry->get_method()
+##### History\_Entry->get_method()
 
-_Description:_ Gets the method part from the uri in the History_Entry object. Returns an empty string if none is found or the uri is empty or contains only the controller part. If using Routes this won't match the really executed method in the controller as the History class records only the uri Requests.
-_Static:_ No
-_Return:_ null|string
+**Description:** Gets the method part from the uri in the History_Entry object. Returns an empty string if none is found or the uri is empty or contains only the controller part. If using Routes this won't match the really executed method in the controller as the History class records only the uri Requests.  
+**Static:** No  
+**Return:** null|string
 
 ```
 $entry = History_Entry::forge('welcome/index');
 $method = $entry->get_method();
 ```
 
-##### History_Entry->get_segment($index)
+##### History\_Entry->get_segment($index)
 
-_Description:_ Gets the zero-based uri's segment specified by given index. Returns null if index is out of bounds.
-_Static:_ No
-_Return:_ null|string
+**Description:** Gets the zero-based uri's segment specified by given index. Returns null if index is out of bounds.  
+**Static:** No  
+**Return:** null|string
 
 ```
 $entry = History_Entry::forge('welcome/display/file/531');
@@ -522,9 +523,9 @@ $id = $entry->get_segment(3);
 
 ##### History_Entry->serialize()
 
-_Description:_ Serializes the History_Entry object.
-_Static:_ No
-_Return:_
+**Description:** Serializes the History_Entry object.  
+**Static:** No  
+**Return:**
 
 ```
 $entry = History_Entry::forge('/');
@@ -533,22 +534,23 @@ $serialized = $entry->serialize();
 
 ##### History_Entry->unserialize($str)
 
-_Description:_ Unserializes the entries' string to the History_Entry object. All instance members will be overwritten.
-_Static:_ No
-_Return:_
+**Description:** Unserializes the entries' string to the History_Entry object. All instance members will be overwritten.  
+**Static:** No  
+**Return:**
 
 ```
 $serialized_string = 'a:1:{i:0;C:21:"History\History_Entry":195:{a:3:{s:3:"uri";s:13:"welcome/index";s:8:"segments";a:2:{i:0;s:7:"welcome";i:1;s:5:"index";}s:8:"datetime";O:14:"Fuel\Core\Date":2:{s:12:" * timestamp";i:1317144358;s:11:" * timezone";s:3:"UTC";}}}}';
 $entry = History_Entry::forge('')->unserialize($serialized_string);
 ```
-Note: the serialized string it's just a close-to-real example
 
-##### History_Entry::equals($compare, $use_post_hash = true)
+Note: the serialized string is just a close-to-real example
 
-_Description:_ Compares this History_Entry instance with another and determines if they are equal.
-It can be compared to a string (uri), a \Fuel\Uri object or a History_entry object. The use_post_hash param indicates whether to use the post hash to do the comparison or not.
-_Static:_ Yes
-_Return:_
+##### History\_Entry::equals($compare, $use\_post\_hash = true)
+
+**Description:** Compares this History\_Entry instance with another and determines if they are equal.
+It can be compared to a string (uri), a \Fuel\Uri object or a History\_Entry object. The use\_post\_hash param indicates whether to use the post hash to do the comparison or not.  
+**Static:** Yes  
+**Return:** bool
 
 ```
 $uri = new \Uri('/');
