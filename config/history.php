@@ -69,10 +69,7 @@ return array(
 		// Whether to save the full post data in the entry or just the post data hash (optional, default = false).
 		'use_full_post' => false,
 		// Exclude
-		'exclude' => array(
-			'_root_',
-			'_404_'
-		)
+		'exclude' => array()
 	)
 );
 // @formatter:on
