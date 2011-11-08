@@ -162,7 +162,8 @@ class History_Entry implements \Serializable
 	 */
 	public function get_controller()
 	{
-		return $this->get_segment(0);
+		// Controller is segment 1 (one-based index)
+		return $this->get_segment(1);
 	}
 
 	/**
@@ -175,12 +176,15 @@ class History_Entry implements \Serializable
 	 */
 	public function get_method()
 	{
-		return $this->get_segment(1);
+		// Method is segment 2 (one-based index)
+		return $this->get_segment(2);
 	}
 
 	/**
-	 * Gets the zero-based uri's segment specified by given index. Returns null if
+	 * Gets the one-based uri's segment specified by given index. Returns null if
 	 * index is out of bounds.
+	 * 
+	 * Segment index is 1 based, not 0 based to match \Fuel\Uri::get_segment() method.
 	 *
 	 * @return null|string The uri segment or null if it does not exists
 	 */
@@ -189,7 +193,7 @@ class History_Entry implements \Serializable
 		// Get the segments
 		$segments = \Arr::get($this->_data, 'segments', array());
 
-		return \Arr::get($segments, $index, null);
+		return \Arr::get($segments, $index - 1, null);
 	}
 
 	/**
