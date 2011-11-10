@@ -10,14 +10,21 @@
  * @link       http://fuelphp.com
  */
 
-
+/**
+ * History Autoloader
+ *
+ * @package     Fuel
+ * @subpackage  History
+ * @author      Axel Pardemann (http://github.com/axelitus)
+ * @link        http://github.com/axelitus/fuel-pkg-history
+ */
 Autoloader::add_core_namespace('History');
 
 Autoloader::add_classes(array(
 	'History\\History'								=> __DIR__.'/classes/history.php',
-	'History\\History_Exception'					=> __DIR__.'/classes/history.php',
+	'History\\HistoryException'						=> __DIR__.'/classes/history.php',
 	'History\\History_Entry'						=> __DIR__.'/classes/history/entry.php',
-	'History\\History_Entry_Exception'				=> __DIR__.'/classes/history/entry.php',
+	'History\\History_EntryException'				=> __DIR__.'/classes/history/entry.php',
 	'History\\History_Driver'						=> __DIR__.'/classes/history/driver.php',
 	'History\\History_Driver_File'					=> __DIR__.'/classes/history/driver/file.php',
 	'History\\History_Driver_Database'				=> __DIR__.'/classes/history/driver/database.php',

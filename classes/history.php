@@ -13,7 +13,15 @@
 namespace History;
 
 // @formatter:off
-class History_Exception extends \Fuel_Exception {}
+/**
+ * HistoryException
+ *
+ * @package     Fuel
+ * @subpackage  History
+ * @author      Axel Pardemann (http://github.com/axelitus)
+ * @link        http://github.com/axelitus/fuel-pkg-history
+ */
+class HistoryException extends \FuelException {}
 // @formatter:on
 
 /**
@@ -21,6 +29,9 @@ class History_Exception extends \Fuel_Exception {}
  *
  * @package     Fuel
  * @subpackage  History
+ * @version     1.1
+ * @author      Axel Pardemann (http://github.com/axelitus)
+ * @link        http://github.com/axelitus/fuel-pkg-history
  */
 class History
 {
@@ -144,13 +155,13 @@ class History
 				else
 				{
 					// If the driver hasn't been loaded we cannot continue!
-					throw new History_Exception("The specified driver " . static::$_config['driver']['name'] . " ({$driver}) could not be loaded!");
+					throw new HistoryException("The specified driver " . static::$_config['driver']['name'] . " ({$driver}) could not be loaded!");
 				}
 			}
 			else
 			{
 				// If we cannot find the driver we cannot continue!
-				throw new History_Exception("The specified driver " . static::$_config['driver']['name'] . " ({$driver}) was not found!");
+				throw new HistoryException("The specified driver " . static::$_config['driver']['name'] . " ({$driver}) was not found!");
 			}
 		}
 	}

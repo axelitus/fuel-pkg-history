@@ -13,14 +13,24 @@
 namespace History;
 
 // @formatter:off
-class History_Entry_Exception extends History_Exception {}
-// @formatter:on
-
 /**
- * History
+ * History_EntryException
  *
  * @package     Fuel
  * @subpackage  History
+ * @author      Axel Pardemann (http://github.com/axelitus)
+ * @link        http://github.com/axelitus/fuel-pkg-history
+ */
+class History_EntryException extends HistoryException {}
+// @formatter:on
+
+/**
+ * History_Entry
+ *
+ * @package     Fuel
+ * @subpackage  History
+ * @author      Axel Pardemann (http://github.com/axelitus)
+ * @link        http://github.com/axelitus/fuel-pkg-history
  */
 class History_Entry implements \Serializable
 {
@@ -104,7 +114,7 @@ class History_Entry implements \Serializable
 		}
 		else
 		{
-			throw new History_Entry_Exception("Cannot forge a History_Entry object from the given parameter \$data.");
+			throw new History_EntryException("Cannot forge a History_Entry object from the given parameter \$data.");
 		}
 
 		return new static($options, $use_full_post);
@@ -136,7 +146,7 @@ class History_Entry implements \Serializable
 		// Get the attribute if exists
 		if (($value = \Arr::get($this->_data, $key, null)) === null)
 		{
-			throw new History_Entry_Exception("The property '{$key}' does not exist.");
+			throw new History_EntryException("The property '{$key}' does not exist.");
 		}
 
 		return $value;

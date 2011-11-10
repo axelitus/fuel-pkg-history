@@ -11,6 +11,14 @@
  */
 
 // @formatter:off
+/**
+ * History Config example
+ *
+ * @package     Fuel
+ * @subpackage  History
+ * @author      Axel Pardemann (http://github.com/axelitus)
+ * @link        http://github.com/axelitus/fuel-pkg-history
+ */
 return array(
 	// Default ID for history tag in Session (optional, default = 'history').
 	'history_id' => 'history',

@@ -13,10 +13,12 @@
 namespace History;
 
 /**
- * History
+ * History_Driver
  *
  * @package     Fuel
  * @subpackage  History
+ * @author      Axel Pardemann (http://github.com/axelitus)
+ * @link        http://github.com/axelitus/fuel-pkg-history
  */
 abstract class History_Driver
 {

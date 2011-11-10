@@ -13,10 +13,12 @@
 namespace History;
 
 /**
- * History
+ * Controller_History
  *
  * @package     Fuel
  * @subpackage  History
+ * @author      Axel Pardemann (http://github.com/axelitus)
+ * @link        http://github.com/axelitus/fuel-pkg-history
  */
 class Controller_History extends \Controller
 {

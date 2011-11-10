@@ -13,14 +13,24 @@
 namespace History;
 
 // @formatter:off
-class History_Driver_Database_Exception extends History_Exception {}
-// @formatter:on
-
 /**
- * History
+ * History_Driver_DatabaseException
  *
  * @package     Fuel
  * @subpackage  History
+ * @author      Axel Pardemann (http://github.com/axelitus)
+ * @link        http://github.com/axelitus/fuel-pkg-history
+ */
+class History_Driver_DatabaseException extends HistoryException {}
+// @formatter:on
+
+/**
+ * History_Driver_Database
+ *
+ * @package     Fuel
+ * @subpackage  History
+ * @author      Axel Pardemann (http://github.com/axelitus)
+ * @link        http://github.com/axelitus/fuel-pkg-history
  */
 class History_Driver_Database extends History_Driver
 {
@@ -72,12 +82,12 @@ class History_Driver_Database extends History_Driver
 				\DBUtil::create_table($this->_table, $this->_table_fields, array('hash'));
 				if (!static::_table_exists($this->_table))
 				{
-					throw new History_Driver_Database_Exception("Database table could not be created.");
+					throw new History_Driver_DatabaseException("Database table could not be created.");
 				}
 			}
 			else
 			{
-				throw new History_Driver_Database_Exception("Database table does not exist.");
+				throw new History_Driver_DatabaseException("Database table does not exist.");
 			}
 		}
 

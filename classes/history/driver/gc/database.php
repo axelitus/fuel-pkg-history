@@ -13,10 +13,12 @@
 namespace History;
 
 /**
- * History
+ * History_Driver_GC_Database
  *
  * @package     Fuel
  * @subpackage  History
+ * @author      Axel Pardemann (http://github.com/axelitus)
+ * @link        http://github.com/axelitus/fuel-pkg-history
  */
 class History_Driver_GC_Database extends History_Driver_GC
 {
