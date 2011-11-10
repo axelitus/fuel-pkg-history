@@ -7,13 +7,13 @@ The data (History entries stack) itself is stored depending on the driver you ch
 
 ## About
 
-* Latest Version: 1.1
-* Release Date: 31/10/2011
+* Latest Version: v1.1
+* Released: 10/11/2011
 * Author: Axel Pardemann ([http://axelitus.mx] (http://axelitus.mx))
 
 ## Requirements
 
-* FuelPHP Framework version 1.1 (it is not backwards compatible anymore, please update you FuelPHP version).
+* FuelPHP Framework version v1.1 (it is not backwards compatible anymore, please update you FuelPHP version).
 * MySql Database v5.0 or later (required only if using the database driver). Other databases may work but they are not tested.
 
 ## Development Team
