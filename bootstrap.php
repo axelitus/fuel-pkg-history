@@ -18,6 +18,8 @@
  * @author      Axel Pardemann (http://github.com/axelitus)
  * @link        http://github.com/axelitus/fuel-pkg-history
  */
+Autoloader::add_namespace('History', __DIR__.'/classes/');
+
 Autoloader::add_core_namespace('History');
 
 Autoloader::add_classes(array(
