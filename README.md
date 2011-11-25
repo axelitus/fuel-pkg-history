@@ -1,4 +1,4 @@
-# Fuel History package
+# FuelPHP History package
 
 The History package allows you to have a browsing history stack.
 The class uses different drivers to store the history stack. The included drivers are: File (default), Database and Session.
@@ -36,7 +36,7 @@ The package installation is very easy. You can choose one of two methods describ
 
 ### Manual
 
-Just download the source code located at [axelitus' FuelPHP History package at GitHub](https://github.com/axelitus/fuel-pkg-history) and place it in a folder named history inside the packages folder in FuelPHP.
+Just download the source code located at [axelitus' FuelPHP History package at GitHub](https://github.com/axelitus/fuel-pkg-history) and place it in a folder named `history` inside the packages folder in FuelPHP.
 
 Alternatively you can use git to clone the repository directly (this will make your life easier when updating the package):
 
@@ -53,7 +53,7 @@ The first thing you should do is load the package. This can be achieved manually
 
 	\Package::load('history');
 
-To load it automatically you should edit your App's config file (config.php). Look for the 'always_load' key and under 'packages' and set an entry with the 'history' string. It should look similar to this:
+To load it automatically you should edit your app's config file (`config.php`). Look for the `always_load` key and under `packages` and set an entry with the 'history' string. It should look similar to this:
 
 	...
 	'always_load'	=> array(
